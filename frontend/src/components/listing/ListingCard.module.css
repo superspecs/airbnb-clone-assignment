@@ -1,0 +1,174 @@
+.card {
+  position: relative;
+}
+
+.link {
+  display: block;
+  border-radius: var(--radius-lg);
+}
+
+.media {
+  position: relative;
+  aspect-ratio: 20 / 19;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-hover);
+}
+
+.image {
+  object-fit: cover;
+}
+
+.noImage {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: var(--color-text-muted);
+}
+
+.body {
+  padding-top: 12px;
+}
+
+.topLine {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.location {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rating {
+  flex: none;
+  font-size: 14px;
+}
+
+.title,
+.meta {
+  margin: 0;
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.price {
+  margin: 6px 0 0;
+}
+
+.badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+  font-size: 12px;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.heart {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  transition: transform 0.15s;
+}
+
+.heart:hover {
+  transform: scale(1.08);
+}
+
+.heart path {
+  fill: rgba(0, 0, 0, 0.5);
+  stroke: #fff;
+  stroke-width: 2;
+}
+
+.saved path {
+  fill: var(--color-accent);
+}
+
+/* Carousel controls sit over the image area only. */
+.carousel {
+  position: absolute;
+  inset: 0 0 auto;
+  aspect-ratio: 20 / 19;
+  pointer-events: none;
+}
+
+.arrow {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0 0 2px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  font-size: 22px;
+  line-height: 1;
+  opacity: 0;
+  pointer-events: auto;
+  transition: opacity 0.15s;
+}
+
+.arrow[hidden] {
+  display: none;
+}
+
+.next {
+  left: auto;
+  right: 12px;
+}
+
+.card:hover .arrow,
+.arrow:focus-visible {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .arrow {
+    opacity: 1;
+  }
+}
+
+.dots {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 5px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.dotActive {
+  background: #fff;
+}

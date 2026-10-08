@@ -1,0 +1,44 @@
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Environment files (commit only the .example templates)
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# SQLite databases (recreated from seed data)
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+backend/data/*
+!backend/data/.gitkeep
+
+# Node / Next.js (frontend/.gitignore has the full list)
+node_modules/
+.next/
+
+# Private visual references captured from third-party sites; not for redistribution
+docs/screenshots/reference/
+
+# Assignment brief (not ours to redistribute)
+*.pdf
+
+# Claude Code: keep only the project's own skill; exclude local settings and third-party skill bundles
+.claude/*
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/airbnb-assignment/
+skills-lock.json
+
+# Deployment CLIs
+.vercel/

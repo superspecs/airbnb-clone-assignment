@@ -1,0 +1,229 @@
+.wrapper {
+  position: relative;
+}
+
+/* Mobile: stacked card. Desktop (≥ 744px): single pill with segments. */
+.bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-float);
+}
+
+.segment {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding: 10px 16px;
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+}
+
+.where,
+.who {
+  grid-column: 1 / -1;
+}
+
+.segment:hover {
+  background: var(--color-surface-hover);
+}
+
+.segment:focus-within {
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  z-index: 1;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+}
+
+.input {
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-text);
+}
+
+.input:focus {
+  outline: none;
+}
+
+.input::placeholder,
+.placeholder {
+  color: var(--color-text-muted);
+}
+
+.input[type="date"]:invalid,
+.input[type="date"]:not(:focus):placeholder-shown {
+  color: var(--color-text-muted);
+}
+
+.whoButton {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+
+.value {
+  font-size: 14px;
+}
+
+.placeholder {
+  font-size: 14px;
+}
+
+.popover {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  z-index: 30;
+  width: min(360px, calc(100vw - 2 * var(--page-gutter)));
+  padding: 16px 24px;
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  cursor: default;
+}
+
+.stepperRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.stepperTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.stepperHint {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stepButton {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 50%;
+  background: var(--color-surface);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.stepButton:hover:not(:disabled) {
+  border-color: var(--color-dark);
+}
+
+.stepButton:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.stepValue {
+  min-width: 20px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.submit {
+  grid-column: 1 / -1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 8px;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.submit:hover {
+  background: var(--color-accent-strong);
+}
+
+.error {
+  margin: 8px 0 0;
+  color: var(--color-error);
+  font-size: 13px;
+  text-align: center;
+}
+
+@media (min-width: 744px) {
+  .bar {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.1fr) auto;
+    align-items: center;
+    border-radius: var(--radius-xl);
+  }
+
+  .where,
+  .who {
+    grid-column: auto;
+  }
+
+  .segment {
+    padding: 14px 24px;
+  }
+
+  /* Thin dividers between segments, hidden next to hovered/active segments. */
+  .segment + .segment::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 25%;
+    height: 50%;
+    border-left: 1px solid var(--color-border);
+  }
+
+  .segment:hover::before,
+  .segment:hover + .segment::before,
+  .segment:focus-within::before,
+  .segment:focus-within + .segment::before {
+    border-color: transparent;
+  }
+
+  .submit {
+    grid-column: auto;
+    margin: 0 8px 0 0;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+  }
+
+  .submit span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+}

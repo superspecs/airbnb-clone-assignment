@@ -1,0 +1,45 @@
+.nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 48px;
+}
+
+.page,
+.arrow {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 14px;
+}
+
+.arrow {
+  font-size: 22px;
+  padding-bottom: 3px;
+}
+
+.page:hover,
+.arrow:hover {
+  background: var(--color-surface-hover);
+}
+
+.current,
+.current:hover {
+  background: var(--color-dark);
+  color: #fff;
+  font-weight: 600;
+}
+
+.disabled,
+.disabled:hover {
+  color: var(--color-border);
+  background: transparent;
+}
+
+.gap {
+  width: 20px;
+  text-align: center;
+}

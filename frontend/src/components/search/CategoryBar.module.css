@@ -1,0 +1,45 @@
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px var(--page-gutter) 0;
+}
+
+.scroller {
+  display: flex;
+  gap: 28px;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  padding: 4px 0 12px;
+  border-bottom: 2px solid transparent;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.item:hover {
+  color: var(--color-text);
+  border-bottom-color: var(--color-border);
+}
+
+.active,
+.active:hover {
+  color: var(--color-text);
+  border-bottom-color: var(--color-dark);
+}

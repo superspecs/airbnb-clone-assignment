@@ -1,0 +1,30 @@
+# Render Blueprint for the FastAPI backend (the frontend deploys separately on Vercel).
+# SQLite lives on a persistent disk, so the service must stay at a single instance.
+# Persistent disks require a paid instance type; the free plan cannot attach one.
+services:
+  - type: web
+    name: airbnb-clone-assignment-api
+    runtime: python
+    rootDir: backend
+    plan: 0.5c-512mb
+    numInstances: 1
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/health
+    autoDeployTrigger: commit
+    disk:
+      name: sqlite-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.14.3
+      - key: DATABASE_URL
+        value: sqlite:////var/data/app.db
+      - key: SEED_ON_STARTUP
+        value: "true"
+      - key: TIMEZONE
+        value: Asia/Kolkata
+      # Set to the Vercel production origin, e.g. https://<project>.vercel.app (no trailing slash).
+      - key: CORS_ORIGINS
+        sync: false
