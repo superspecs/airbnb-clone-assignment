@@ -1,0 +1,66 @@
+.card {
+  position: relative;
+  display: flex;
+  gap: 20px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: box-shadow 0.15s;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-card);
+}
+
+.thumb {
+  position: relative;
+  flex: none;
+  width: 160px;
+  height: 120px;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-hover);
+}
+
+.image {
+  object-fit: cover;
+}
+
+.body {
+  min-width: 0;
+  padding-right: 96px; /* room for the status badge */
+}
+
+.body p {
+  margin: 0 0 4px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.muted {
+  color: var(--color-text-muted);
+}
+
+.total {
+  font-weight: 600;
+}
+
+.status {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: #e7f4ec;
+  color: #1d6b3a;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.cancelled {
+  background: var(--color-surface-hover);
+  color: var(--color-text-muted);
+}

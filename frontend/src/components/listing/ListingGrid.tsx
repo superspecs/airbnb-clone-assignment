@@ -5,12 +5,24 @@ import styles from "./ListingGrid.module.css";
 
 const ABOVE_THE_FOLD = 4;
 
-export function ListingGrid({ listings }: { listings: ListingCardData[] }) {
+interface ListingGridProps {
+  listings: ListingCardData[];
+  savedIds?: number[];
+  linkQuery?: string;
+}
+
+export function ListingGrid({ listings, savedIds = [], linkQuery }: ListingGridProps) {
+  const saved = new Set(savedIds);
   return (
     <ul className={styles.grid}>
       {listings.map((listing, i) => (
         <li key={listing.id}>
-          <ListingCard listing={listing} preloadImage={i < ABOVE_THE_FOLD} />
+          <ListingCard
+            listing={listing}
+            preloadImage={i < ABOVE_THE_FOLD}
+            initiallySaved={saved.has(listing.id)}
+            linkQuery={linkQuery}
+          />
         </li>
       ))}
     </ul>

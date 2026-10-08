@@ -46,3 +46,56 @@ export interface ListingSearchResponse {
   page_size: number;
   total_pages: number;
 }
+
+export interface Amenity {
+  code: string;
+  name: string;
+  icon: string;
+}
+
+export interface Host {
+  id: number;
+  name: string;
+  avatar_url: string | null;
+  bio: string | null;
+  is_superhost: boolean;
+  joined_at: string;
+}
+
+export interface Review {
+  id: number;
+  rating: number;
+  comment: string;
+  created_at: string;
+  author: { id: number; name: string; avatar_url: string | null };
+}
+
+export interface RatingSummary {
+  average: number | null;
+  count: number;
+  distribution: { stars: number; count: number }[];
+}
+
+export interface ListingDetail extends ListingCard {
+  description: string;
+  address: string;
+  cleaning_fee: number;
+  amenities: Amenity[];
+  host: Host;
+  rating_summary: RatingSummary;
+  reviews: Review[];
+  created_at: string;
+}
+
+/** Confirmed stays; check_out is exclusive (free for the next check-in). */
+export interface BlockedRange {
+  check_in: string;
+  check_out: string;
+}
+
+export interface Availability {
+  listing_id: number;
+  start: string;
+  end: string;
+  blocked: BlockedRange[];
+}

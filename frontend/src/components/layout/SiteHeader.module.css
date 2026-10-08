@@ -1,24 +1,18 @@
+/* Desktop-only layout (designed for 1280–1440px wide viewports). */
 .header {
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: 20;
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
 }
 
-/* Sticky only where the compact one-row search fits; on phones it would cover half the screen. */
-@media (min-width: 744px) {
-  .header {
-    position: sticky;
-    top: 0;
-  }
-}
-
 .inner {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
+  grid-template-columns: 1fr minmax(auto, 860px) 1fr;
+  gap: 24px;
   align-items: center;
-  padding: 12px var(--page-gutter);
+  padding: 16px var(--page-gutter);
 }
 
 .logo {
@@ -36,31 +30,53 @@
 }
 
 .center {
+  display: flex;
+  justify-content: center;
   min-width: 0;
+}
+
+.center > * {
+  flex: 1;
+}
+
+.right {
+  justify-self: end;
+}
+
+.menuPlaceholder {
+  display: block;
+  width: 86px;
+  height: 42px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-muted);
 }
 
 .bottom {
   border-top: 1px solid var(--color-border);
 }
 
-.badge {
-  display: none;
-  margin: 0;
-  justify-self: end;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--color-text-muted);
+.shortcut {
+  display: flex;
+  flex: 0 1 auto !important;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 8px 8px 24px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
+  font-weight: 600;
 }
 
-@media (min-width: 950px) {
-  .inner {
-    grid-template-columns: 1fr minmax(auto, 860px) 1fr;
-    gap: 24px;
-    padding-top: 16px;
-    padding-bottom: 16px;
-  }
+.shortcut:hover {
+  box-shadow: var(--shadow-float);
+}
 
-  .badge {
-    display: block;
-  }
+.shortcutIcon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: #fff;
 }

@@ -1,0 +1,32 @@
+.actions {
+  display: flex;
+  gap: 4px;
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.action:hover {
+  background: var(--color-surface-muted);
+}
+
+.secondary {
+  padding: 12px 22px;
+  border: 1px solid var(--color-dark);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font-weight: 600;
+}
+
+.secondary:hover {
+  background: var(--color-surface-muted);
+}

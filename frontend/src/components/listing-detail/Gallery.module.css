@@ -1,0 +1,132 @@
+.grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: 238px 238px;
+  gap: 8px;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+}
+
+.count1 {
+  grid-template-columns: 1fr;
+}
+
+.count2,
+.count3 {
+  grid-template-columns: 2fr 1fr;
+}
+
+.count4 .main,
+.count5 .main {
+  grid-row: span 2;
+}
+
+.count2 .main,
+.count3 .main {
+  grid-row: span 2;
+}
+
+.count1 .main {
+  grid-row: span 2;
+}
+
+.count4 .cell:nth-child(4) {
+  grid-column: span 2;
+}
+
+.cell {
+  position: relative;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: var(--color-surface-hover);
+}
+
+.cell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  transition: background 0.15s;
+}
+
+.cell:hover::after {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.image {
+  object-fit: cover;
+}
+
+.showAll {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  padding: 7px 15px;
+  border: 1px solid var(--color-dark);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.empty {
+  display: grid;
+  place-items: center;
+  height: 300px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+  color: var(--color-text-muted);
+}
+
+.tour {
+  width: 100vw;
+  max-width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--color-surface);
+}
+
+.tour::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.tourHeader {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px;
+  background: var(--color-surface);
+  font-weight: 600;
+}
+
+.close {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-surface-muted);
+}
+
+.tourBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(900px, 90vw);
+  margin: 8px auto 48px;
+}
+
+.tourImage {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-hover);
+}

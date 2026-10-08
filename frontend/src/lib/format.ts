@@ -27,3 +27,44 @@ export function shortDate(iso: string): string {
   const [y, m, d] = iso.split("-").map(Number);
   return new Date(y, m - 1, d).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
 }
+
+/** "Wed, 14 Oct 2026" for a YYYY-MM-DD date. */
+export function longDate(iso: string): string {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString("en-IN", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+/** "14 – 16 Oct 2026" style range (check-out exclusive, shown as the check-out date). */
+export function dateRange(checkIn: string, checkOut: string): string {
+  const [y1, m1, d1] = checkIn.split("-").map(Number);
+  const [y2, m2, d2] = checkOut.split("-").map(Number);
+  const start = new Date(y1, m1 - 1, d1);
+  const end = new Date(y2, m2 - 1, d2);
+  const endLabel = end.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  const sameMonth = y1 === y2 && m1 === m2;
+  const startLabel = start.toLocaleDateString("en-IN", sameMonth ? { day: "numeric" } : { day: "numeric", month: "short" });
+  return `${startLabel} – ${endLabel}`;
+}
+
+/** "Joined 2024" style year from an ISO timestamp. */
+export function yearOf(isoTimestamp: string): number {
+  return new Date(isoTimestamp).getFullYear();
+}
+
+export const PROPERTY_LABELS: Record<string, string> = {
+  apartment: "Apartment",
+  house: "House",
+  villa: "Villa",
+  cabin: "Cabin",
+  cottage: "Cottage",
+};
+
+export const ROOM_LABELS: Record<string, string> = {
+  entire_place: "Entire place",
+  private_room: "Private room",
+};

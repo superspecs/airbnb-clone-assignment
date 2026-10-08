@@ -1,0 +1,31 @@
+.list {
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 6px 0;
+  font-size: 15px;
+}
+
+.row dt {
+  text-decoration: underline;
+  text-decoration-color: var(--color-border);
+}
+
+.row dd {
+  margin: 0;
+}
+
+.total {
+  margin-top: 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+  font-weight: 700;
+}
+
+.total dt {
+  text-decoration: none;
+}

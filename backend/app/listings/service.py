@@ -129,7 +129,23 @@ def search_listings(db: Session, params: schemas.ListingSearchParams) -> schemas
     )
 
 
-def _get_active_listing(db: Session, listing_id: int, *options) -> Listing:
+def listing_cards(db: Session, listing_ids: list[int]) -> list[schemas.ListingCard]:
+    """Cards for the given active listings, in the order of `listing_ids`."""
+    if not listing_ids:
+        return []
+    stats = _rating_stats()
+    rows = db.execute(
+        select(Listing, stats.c.average, stats.c.count)
+        .outerjoin(stats, stats.c.listing_id == Listing.id)
+        .where(Listing.id.in_(listing_ids), Listing.deleted_at.is_(None))
+        .options(selectinload(Listing.images), joinedload(Listing.host))
+    ).all()
+    cards = {listing.id: schemas.ListingCard(**_card_fields(listing, avg, cnt)) for listing, avg, cnt in rows}
+    return [cards[i] for i in listing_ids if i in cards]
+
+
+def get_active_listing(db: Session, listing_id: int, *options) -> Listing:
+    """Load a listing that exists and is not soft-deleted, or raise 404."""
     listing = db.scalars(
         select(Listing).where(Listing.id == listing_id, Listing.deleted_at.is_(None)).options(*options)
     ).first()
@@ -139,7 +155,7 @@ def _get_active_listing(db: Session, listing_id: int, *options) -> Listing:
 
 
 def get_listing_detail(db: Session, listing_id: int) -> schemas.ListingDetail:
-    listing = _get_active_listing(
+    listing = get_active_listing(
         db,
         listing_id,
         selectinload(Listing.images),
@@ -196,7 +212,7 @@ def get_listing_detail(db: Session, listing_id: int) -> schemas.ListingDetail:
 def get_availability(
     db: Session, listing_id: int, start: date | None, end: date | None
 ) -> schemas.AvailabilityResponse:
-    _get_active_listing(db, listing_id)
+    get_active_listing(db, listing_id)
     start = start or today()
     end = end or start + timedelta(days=365)
     if end <= start:

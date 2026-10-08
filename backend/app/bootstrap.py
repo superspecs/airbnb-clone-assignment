@@ -5,13 +5,18 @@ from sqlalchemy import select
 import app.models  # noqa: F401  (registers all tables on Base.metadata)
 from app.db import Base, SessionLocal, engine
 from app.models import Listing
+from app.models.booking import BOOKING_TRIGGERS
 from app.seed.loader import load_seed_data
 
 logger = logging.getLogger(__name__)
 
 
 def create_tables() -> None:
+    """Create missing tables and booking-overlap triggers. Never drops or alters existing data."""
     Base.metadata.create_all(engine)
+    with engine.begin() as conn:
+        for ddl in BOOKING_TRIGGERS:
+            conn.exec_driver_sql(ddl)  # CREATE TRIGGER IF NOT EXISTS — idempotent
 
 
 def reset_database() -> None:

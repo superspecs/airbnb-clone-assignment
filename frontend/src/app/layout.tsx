@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
+
+import { ToastFromUrl, Toaster } from "@/components/ui/Toast";
 
 import "./globals.css";
 
@@ -10,7 +13,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {children}
+        <Toaster />
+        <Suspense fallback={null}>
+          <ToastFromUrl />
+        </Suspense>
+      </body>
     </html>
   );
 }

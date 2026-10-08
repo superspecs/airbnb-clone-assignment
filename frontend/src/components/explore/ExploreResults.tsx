@@ -1,8 +1,10 @@
 import { ListingGrid } from "@/components/listing/ListingGrid";
-import { ApiError } from "@/lib/api/client";
+import { getWishlist } from "@/lib/api/account";
+import { errorMessage } from "@/lib/api/client";
 import { searchListings } from "@/lib/api/listings";
 import type { ExploreQuery } from "@/lib/explore-query";
 import { pluralize, shortDate } from "@/lib/format";
+import { getCurrentUserId } from "@/lib/session";
 
 import styles from "./ExploreResults.module.css";
 import { Pagination } from "./Pagination";
@@ -16,14 +18,27 @@ function summary(query: ExploreQuery, total: number): string {
   return parts.join(" · ");
 }
 
+/** Dates/guests carried from Explore to the listing page so the booking widget is prefilled. */
+function stayQuery(query: ExploreQuery): string {
+  const params = new URLSearchParams();
+  if (query.checkIn && query.checkOut) {
+    params.set("check_in", query.checkIn);
+    params.set("check_out", query.checkOut);
+  }
+  if (query.guests) params.set("guests", String(query.guests));
+  return params.toString();
+}
+
 export async function ExploreResults({ query }: { query: ExploreQuery }) {
-  const result = await searchListings(query).then(
-    (data) => ({ ok: true as const, data }),
-    (error: unknown) => ({
-      ok: false as const,
-      message: error instanceof ApiError ? error.message : "Something went wrong. Please try again.",
-    }),
-  );
+  const userId = await getCurrentUserId();
+  const [result, savedIds] = await Promise.all([
+    searchListings(query).then(
+      (data) => ({ ok: true as const, data }),
+      (error: unknown) => ({ ok: false as const, message: errorMessage(error) }),
+    ),
+    // Saved state is a nicety; Explore still works if the wishlist call fails.
+    getWishlist(userId).then((w) => w.listing_ids, () => []),
+  ]);
 
   if (!result.ok) return <ResultsError message={result.message} />;
 
@@ -39,7 +54,7 @@ export async function ExploreResults({ query }: { query: ExploreQuery }) {
         </h1>
         <p className={styles.note}>Prices are per night, before fees</p>
       </div>
-      <ListingGrid listings={items} />
+      <ListingGrid listings={items} savedIds={savedIds} linkQuery={stayQuery(query)} />
       <Pagination query={query} totalPages={total_pages} />
     </section>
   );

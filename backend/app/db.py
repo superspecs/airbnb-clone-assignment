@@ -9,7 +9,8 @@ from app.core.config import settings
 engine = create_engine(
     settings.resolved_database_url,
     # FastAPI may run sync endpoints in a thread pool; SQLite connections must allow that.
-    connect_args={"check_same_thread": False},
+    # `timeout` makes a writer wait for the lock instead of failing immediately.
+    connect_args={"check_same_thread": False, "timeout": 15},
 )
 
 
@@ -21,11 +22,20 @@ def _enable_sqlite_foreign_keys(dbapi_connection, _connection_record) -> None:
     cursor.close()
 
 
+def begin_immediate(db: Session) -> None:
+    """Start the session's transaction with SQLite's write lock held (BEGIN IMMEDIATE).
+
+    Must be the first statement in the session's transaction. Concurrent writers then queue
+    on the lock, so a read-check-insert sequence (e.g. booking overlap check) cannot interleave.
+    """
+    db.connection().exec_driver_sql("BEGIN IMMEDIATE")
+
+
 SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
 
 
 class Base(DeclarativeBase):
-    """Base class for ORM models (added in the schema milestone)."""
+    """Base class for ORM models."""
 
 
 def get_db() -> Iterator[Session]:

@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from enum import StrEnum
 
-from sqlalchemy import CheckConstraint, Date, DateTime, ForeignKey, Index, Integer
+from sqlalchemy import DDL, CheckConstraint, Date, DateTime, ForeignKey, Index, Integer, event
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -50,3 +50,38 @@ class Booking(Base):
 
     listing: Mapped[Listing] = relationship()
     guest: Mapped[User] = relationship()
+
+
+# Database-level guarantee that confirmed stays never overlap on the same listing, even if
+# application checks are bypassed. Ranges overlap iff a.check_in < b.check_out AND
+# b.check_in < a.check_out (check-out exclusive). ISO date strings compare correctly as text.
+_OVERLAP_CONDITION = """
+    EXISTS (
+        SELECT 1 FROM bookings b
+        WHERE b.listing_id = NEW.listing_id
+          AND b.status = 'confirmed'
+          AND b.id IS NOT NEW.id
+          AND b.check_in < NEW.check_out
+          AND NEW.check_in < b.check_out
+    )
+"""
+
+BOOKING_TRIGGERS = (
+    f"""
+    CREATE TRIGGER IF NOT EXISTS trg_bookings_no_overlap_insert
+    BEFORE INSERT ON bookings
+    WHEN NEW.status = 'confirmed' AND {_OVERLAP_CONDITION}
+    BEGIN SELECT RAISE(ABORT, 'BOOKING_OVERLAP'); END
+    """,
+    f"""
+    CREATE TRIGGER IF NOT EXISTS trg_bookings_no_overlap_update
+    BEFORE UPDATE OF status, check_in, check_out, listing_id ON bookings
+    WHEN NEW.status = 'confirmed' AND {_OVERLAP_CONDITION}
+    BEGIN SELECT RAISE(ABORT, 'BOOKING_OVERLAP'); END
+    """,
+)
+
+# New databases get the triggers with the table; app/bootstrap.py also (re)applies them
+# idempotently so databases created before the triggers existed are covered too.
+for _ddl in BOOKING_TRIGGERS:
+    event.listen(Booking.__table__, "after_create", DDL(_ddl))

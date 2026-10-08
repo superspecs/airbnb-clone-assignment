@@ -1,0 +1,108 @@
+/* Shared layout for account pages: Trips, Wishlists, Host dashboard. Desktop only. */
+.main {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 40px 0 80px;
+}
+
+.wide {
+  max-width: none;
+  padding-left: var(--page-gutter);
+  padding-right: var(--page-gutter);
+}
+
+.pageHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.title {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.subtitle {
+  margin: 6px 0 0;
+  color: var(--color-text-muted);
+  font-size: 16px;
+}
+
+.section {
+  margin-bottom: 48px;
+}
+
+.sectionTitle {
+  margin: 0 0 16px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.list {
+  display: grid;
+  gap: 16px;
+}
+
+.twoCol {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.empty {
+  padding: 40px;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.empty p {
+  margin: 0 0 16px;
+  color: var(--color-text-muted);
+  font-size: 16px;
+}
+
+.primary,
+.secondary {
+  display: inline-block;
+  padding: 12px 22px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  text-align: center;
+}
+
+.primary {
+  border: 0;
+  background: var(--color-dark);
+  color: #fff;
+}
+
+.primary:hover {
+  background: #000;
+}
+
+.secondary {
+  border: 1px solid var(--color-dark);
+  background: var(--color-surface);
+}
+
+.secondary:hover {
+  background: var(--color-surface-muted);
+}
+
+.muted {
+  color: var(--color-text-muted);
+}
+
+.notice {
+  padding: 20px 24px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+}
+
+.notice p {
+  margin: 0 0 8px;
+}
