@@ -89,12 +89,27 @@ Checks: `npm run lint`, `npx tsc --noEmit`, `npm run build`. Production server: 
 
 ## Deployment
 
-The two apps deploy independently from this monorepo. The backend must run as **one instance**
-because SQLite lives on a single persistent disk.
+The two apps deploy independently from this monorepo, both on free plans:
+frontend on **Vercel Hobby** (`stays-demo.vercel.app`), backend on **Render Free**.
 
-### Backend — Render (root directory `backend/`)
+### Free-plan limitations (read before demoing)
 
-`render.yaml` is a Render Blueprint describing the service:
+- **Data is not persistent.** Render's free plan cannot attach a disk, so SQLite lives on the
+  instance's ephemeral filesystem. The database is recreated from seed data on every redeploy,
+  restart, or wake-up. Read-only browsing is unaffected; future bookings/host edits would be lost.
+- **Cold starts.** Free services sleep after 15 minutes without traffic and take about a minute
+  to wake. The first page load may show the error state; "Try again" recovers. Open the site a
+  minute before a demo.
+- **750 free instance hours per workspace per month.**
+
+The optional `.github/workflows/keep-backend-awake.yml` pings the health endpoint every
+10 minutes once the repository variable `BACKEND_HEALTH_URL` is set
+(e.g. `https://<service>.onrender.com/api/v1/health`). It reduces cold starts but does not make
+data persistent.
+
+### Backend — Render Free (root directory `backend/`)
+
+`render.yaml` is a Render Blueprint (New → Blueprint → select this repository):
 
 | Setting | Value |
 |---|---|
@@ -102,23 +117,25 @@ because SQLite lives on a single persistent disk.
 | Build command | `pip install -r requirements.txt` |
 | Start command | `uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
 | Health check | `/api/v1/health` (runs `SELECT 1` against the database) |
-| Instance | `0.5c-512mb` (paid; the free plan cannot attach a disk), 1 instance |
-| Persistent disk | mounted at `/var/data` |
-| `DATABASE_URL` | `sqlite:////var/data/app.db` |
-| `CORS_ORIGINS` | the Vercel production origin, e.g. `https://<project>.vercel.app` |
+| Instance | `free`, 1 instance |
+| `DATABASE_URL` | `sqlite:///./data/app.db` (ephemeral) |
+| `CORS_ORIGINS` | `https://stays-demo.vercel.app` |
 | `PYTHON_VERSION` | `3.14.3` |
 
-On first start the API creates the tables and seeds the empty database. Later restarts and
-deploys keep existing data: seeding runs only when no listings exist.
+On start the API creates the tables and seeds the database only when it has no listings.
 
-### Frontend — Vercel (root directory `frontend/`)
+**Upgrading to persistent data (paid):** set `plan: 0.5c-512mb`, add a disk mounted at
+`/var/data`, and set `DATABASE_URL=sqlite:////var/data/app.db`. Keep one instance. No code changes.
 
-Import the repository in Vercel with **Root Directory = `frontend`** (framework preset: Next.js)
-and set `NEXT_PUBLIC_API_BASE_URL=https://<render-service>.onrender.com/api/v1` for Production.
+### Frontend — Vercel Hobby (root directory `frontend/`)
+
+Import the repository in Vercel as project **`stays-demo`** with **Root Directory = `frontend`**
+(framework preset: Next.js) and set, for Production,
+`NEXT_PUBLIC_API_BASE_URL=https://<render-service>.onrender.com/api/v1`.
 The value is baked in at build time, so redeploy after changing it.
 
 ### Order
 
-1. Deploy the backend and note its URL; confirm `/api/v1/health` returns `{"status":"ok","database":"ok"}`.
+1. Deploy the backend and confirm `/api/v1/health` returns `{"status":"ok","database":"ok"}`.
 2. Deploy the frontend with `NEXT_PUBLIC_API_BASE_URL` pointing at the backend.
-3. Set the backend's `CORS_ORIGINS` to the frontend's production origin and redeploy the backend.
+3. If the frontend origin is not `https://stays-demo.vercel.app`, update `CORS_ORIGINS` on Render.

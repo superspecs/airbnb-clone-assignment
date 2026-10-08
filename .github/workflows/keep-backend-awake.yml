@@ -1,0 +1,23 @@
+# Pings the free Render backend so it spins down less often (free services sleep after
+# 15 idle minutes). Does nothing until the repository variable BACKEND_HEALTH_URL is set,
+# e.g. https://<service>.onrender.com/api/v1/health (Settings → Secrets and variables →
+# Actions → Variables). GitHub may delay scheduled runs; this reduces, not removes, cold starts.
+name: Keep backend awake
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    if: ${{ vars.BACKEND_HEALTH_URL != '' }}
+    timeout-minutes: 3
+    steps:
+      - name: Ping health endpoint
+        env:
+          URL: ${{ vars.BACKEND_HEALTH_URL }}
+        run: curl --fail --silent --show-error --max-time 90 --retry 2 --retry-delay 10 "$URL"
