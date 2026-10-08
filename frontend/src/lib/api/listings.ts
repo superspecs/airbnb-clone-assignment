@@ -6,6 +6,11 @@ export function searchListings(query: ExploreQuery): Promise<ListingSearchRespon
   return apiGet<ListingSearchResponse>("/listings", toApiParams(query));
 }
 
+/** Every active listing in one page (the API caps page_size at 50); used for homepage sections. */
+export function getAllListings(): Promise<ListingSearchResponse> {
+  return apiGet<ListingSearchResponse>("/listings", new URLSearchParams({ page: "1", page_size: "50" }));
+}
+
 export function getListing(id: number): Promise<ListingDetail> {
   return apiGet<ListingDetail>(`/listings/${id}`);
 }

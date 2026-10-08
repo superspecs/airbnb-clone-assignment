@@ -42,26 +42,33 @@ export function UserMenuButton({ current, users }: { current: DemoUser | null; u
 
   return (
     <div className={styles.wrapper} ref={ref}>
-      {current?.is_host ? (
-        <Link href="/host" className={styles.hostLink}>
-          Host dashboard
-        </Link>
-      ) : (
-        <span className={styles.role}>Guest mode</span>
-      )}
+      {/* Host entry: hosts go to their dashboard; guests see the host gate (pick a demo host). */}
+      <Link href="/host" className={styles.hostLink}>
+        {current?.is_host ? "Switch to hosting" : "Become a host"}
+      </Link>
       <button
         type="button"
-        className={styles.trigger}
+        className={styles.circle}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label={current ? `Account menu, signed in as ${current.name}` : "Account menu"}
+        aria-label={current ? `Profile, signed in as ${current.name}` : "Profile"}
+        onClick={() => setOpen((o) => !o)}
+        disabled={pending}
+      >
+        <Avatar name={current?.name ?? "?"} size={32} />
+      </button>
+      <button
+        type="button"
+        className={styles.circle}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label="Main menu"
         onClick={() => setOpen((o) => !o)}
         disabled={pending}
       >
         <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-          <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
         </svg>
-        <Avatar name={current?.name ?? "?"} size={30} />
       </button>
 
       {open && (

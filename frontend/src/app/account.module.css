@@ -1,14 +1,13 @@
 /* Shared layout for account pages: Trips, Wishlists, Host dashboard. Desktop only. */
 .main {
-  max-width: 1120px;
+  /* 1120px of content plus the page gutter, so narrower windows keep side margins. */
+  max-width: calc(1120px + 2 * var(--page-gutter));
   margin: 0 auto;
-  padding: 40px 0 80px;
+  padding: 40px var(--page-gutter) 80px;
 }
 
 .wide {
   max-width: none;
-  padding-left: var(--page-gutter);
-  padding-right: var(--page-gutter);
 }
 
 .pageHeader {

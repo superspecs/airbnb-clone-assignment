@@ -1,13 +1,14 @@
 .main {
-  max-width: 1120px;
+  /* 1120px of content plus the page gutter, so narrower windows keep side margins. */
+  max-width: calc(1120px + 2 * var(--page-gutter));
   margin: 0 auto;
-  padding: 48px 0 80px;
+  padding: 48px var(--page-gutter) 80px;
 }
 
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 440px;
-  gap: 96px;
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 440px);
+  gap: var(--column-gap);
   align-items: start;
 }
 

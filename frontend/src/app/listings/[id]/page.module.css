@@ -1,7 +1,8 @@
 .main {
-  max-width: 1120px;
+  /* 1120px of content plus the page gutter, so narrower windows keep side margins. */
+  max-width: calc(1120px + 2 * var(--page-gutter));
   margin: 0 auto;
-  padding: 24px 0 64px;
+  padding: 24px var(--page-gutter) 64px;
 }
 
 .titleRow {
@@ -20,8 +21,8 @@
 
 .body {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 372px;
-  gap: 96px;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 372px);
+  gap: var(--column-gap);
   padding: 40px 0 24px;
   border-bottom: 1px solid var(--color-border);
 }
@@ -42,13 +43,13 @@
 }
 
 .skeletonTitle {
-  width: 420px;
+  width: min(420px, 60%);
   height: 32px;
   margin-bottom: 20px;
 }
 
 .skeletonGallery {
-  height: 484px;
+  height: calc(2 * var(--gallery-row) + 8px);
 }
 
 @keyframes shimmer {

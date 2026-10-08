@@ -31,6 +31,348 @@
   }
 }
 
+/* Search results: two-column list beside a sticky map (reference: ~638px list, ~658px map). */
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.03fr);
+  gap: 48px;
+  align-items: start;
+}
+
+.mapExpanded {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.listColumn {
+  min-width: 0;
+}
+
+.resultsHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.resultsTitle {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.resultsNote {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.grid.splitGrid {
+  /* 1 column in narrow windows, 2 at 1280–1440, 3 on wide screens. */
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 40px 24px;
+}
+
+.map {
+  position: sticky;
+  top: calc(var(--results-header-height, 160px) + 24px);
+  height: calc(100vh - var(--results-header-height, 160px) - 48px);
+  min-height: 440px;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: #e9e6df;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.map:active {
+  cursor: grabbing;
+}
+
+.tile {
+  position: absolute;
+  /* 1px overlap hides hairline seams between neighbouring tiles. */
+  width: 257px;
+  height: 257px;
+  pointer-events: none;
+}
+
+.marker {
+  position: absolute;
+  z-index: 1;
+  padding: 5px 10px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.18);
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+  transition: transform 0.15s cubic-bezier(0.2, 0, 0, 1), background-color 0.15s, color 0.15s;
+  cursor: pointer;
+}
+
+.marker:hover {
+  z-index: 2;
+  transform: translate(-50%, -50%) scale(1.077);
+}
+
+.markerHovered,
+.markerSelected {
+  z-index: 3;
+  background: var(--color-dark);
+  color: #fff;
+  transform: translate(-50%, -50%) scale(1.077);
+}
+
+.mapButton,
+.zoom {
+  position: absolute;
+  right: 16px;
+  z-index: 4;
+  background: var(--color-surface);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+}
+
+.mapButton {
+  top: 16px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+}
+
+.zoom {
+  top: 72px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+.zoom button {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  background: var(--color-surface);
+}
+
+.zoom button + button {
+  border-top: 1px solid var(--color-border);
+}
+
+.mapButton:hover,
+.zoom button:hover {
+  background: var(--color-surface-muted);
+}
+
+.attribution {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 4;
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.85);
+  font-size: 11px;
+}
+
+.preview {
+  position: absolute;
+  z-index: 5;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  cursor: default;
+  animation: pop 0.18s cubic-bezier(0.2, 0, 0, 1);
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+.previewLink {
+  display: block;
+}
+
+.previewMedia {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  background: var(--color-surface-hover);
+}
+
+.previewImage {
+  object-fit: cover;
+}
+
+.previewBody {
+  padding: 12px 16px 14px;
+}
+
+.previewTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 15px;
+}
+
+.previewTitle {
+  margin: 2px 0 0;
+  overflow: hidden;
+  color: var(--color-text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.previewPrice {
+  margin: 6px 0 0;
+}
+
+.previewClose {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Homepage carousel sections (reference: 20px/600 heading, 14px muted subtitle, 28px grey
+   circular controls, 7 cards of ~182px with 12px gaps at 1440). */
+.section + .section {
+  margin-top: 40px;
+}
+
+.sectionHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding-left: 2px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+.sectionLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sectionArrow {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f2f2f2;
+  transition: background-color 0.15s, transform 0.15s;
+}
+
+.sectionLink:hover .sectionArrow {
+  background: var(--color-surface-hover);
+  transform: translateX(2px);
+}
+
+.sectionSubtitle {
+  margin: 4px 0 0;
+  color: #6a6a6a;
+  font-size: 14px;
+  line-height: 18px;
+}
+
+.sectionNav {
+  display: flex;
+  gap: 4px;
+  padding-top: 2px;
+}
+
+.sectionNav button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #f2f2f2;
+  color: var(--color-text);
+  transition: background-color 0.15s;
+}
+
+.sectionNav button:hover:not(:disabled) {
+  background: var(--color-surface-hover);
+}
+
+.sectionNav button:disabled {
+  color: #c1c1c1;
+  background: #f7f7f7;
+  cursor: default;
+}
+
+.track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: calc((100% - 6 * 12px) / 7);
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  list-style: none;
+}
+
+.track::-webkit-scrollbar {
+  display: none;
+}
+
+.track > li {
+  scroll-snap-align: start;
+}
+
+/* Fewer, wider cards as the window narrows so text and badges keep room. */
+@media (max-width: 1399px) {
+  .track {
+    grid-auto-columns: calc((100% - 5 * 12px) / 6);
+  }
+}
+
+@media (max-width: 1199px) {
+  .track {
+    grid-auto-columns: calc((100% - 4 * 12px) / 5);
+  }
+}
+
+@media (max-width: 959px) {
+  .track {
+    grid-auto-columns: calc((100% - 3 * 12px) / 4);
+  }
+}
+
 .skeleton {
   border-radius: var(--radius-sm);
   background: linear-gradient(90deg, #eeeeee 25%, #f6f6f6 50%, #eeeeee 75%);

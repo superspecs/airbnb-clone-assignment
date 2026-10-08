@@ -32,21 +32,66 @@ export function SearchShortcut() {
 /**
  * Sticky site header: logo, a centre slot (search), the demo user menu, and an optional row
  * below (categories). Inner pages pass no children and get the compact search shortcut.
+ *
+ * `variant="home"`: the homepage layout — category tabs in the top row and the large search bar
+ * on its own row below. The header is fixed with a spacer behind it, so when the search bar
+ * collapses into the compact pill on scroll (it sets `data-compact` on this header) the page
+ * content never moves.
  */
-export function SiteHeader({ children, bottom }: { children?: ReactNode; bottom?: ReactNode }) {
+export function SiteHeader({
+  children,
+  bottom,
+  variant = "default",
+  tabs,
+  aside,
+}: {
+  children?: ReactNode;
+  bottom?: ReactNode;
+  variant?: "default" | "home";
+  /** Home: navigation shown in the top row's centre (hidden while compact). */
+  tabs?: ReactNode;
+  /** Home: control at the right end of the search row (e.g. Filters). */
+  aside?: ReactNode;
+}) {
+  const logo = (
+    <Link href="/" className={styles.logo} aria-label="Stays home">
+      <LogoMark />
+      <span className={styles.wordmark}>stays</span>
+    </Link>
+  );
+  const menu = (
+    <div className={styles.right}>
+      <Suspense fallback={<span className={styles.menuPlaceholder} aria-hidden="true" />}>
+        <UserMenu />
+      </Suspense>
+    </div>
+  );
+
+  if (variant === "home") {
+    return (
+      <>
+        <header className={`${styles.header} ${styles.home}`}>
+          <div className={`${styles.inner} ${styles.homeTop}`}>
+            {logo}
+            <div className={styles.tabs}>{tabs}</div>
+            {menu}
+          </div>
+          <div className={styles.searchRow}>
+            {children}
+            {aside && <div className={styles.aside}>{aside}</div>}
+          </div>
+        </header>
+        <div className={styles.homeSpacer} aria-hidden="true" />
+      </>
+    );
+  }
+
   return (
     <header className={styles.header}>
       <div className={styles.inner}>
-        <Link href="/" className={styles.logo} aria-label="Stays home">
-          <LogoMark />
-          <span className={styles.wordmark}>stays</span>
-        </Link>
+        {logo}
         <div className={styles.center}>{children ?? <SearchShortcut />}</div>
-        <div className={styles.right}>
-          <Suspense fallback={<span className={styles.menuPlaceholder} aria-hidden="true" />}>
-            <UserMenu />
-          </Suspense>
-        </div>
+        {menu}
       </div>
       {bottom && <div className={styles.bottom}>{bottom}</div>}
     </header>

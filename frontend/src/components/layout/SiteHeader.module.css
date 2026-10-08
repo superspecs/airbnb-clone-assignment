@@ -80,3 +80,100 @@
   background: var(--color-accent);
   color: #fff;
 }
+
+/* ---- Homepage header ---------------------------------------------------------------------
+   Full: top row (logo · category tabs · host/profile/menu) + search row, on a white→grey band.
+   Compact ([data-compact], set by the search bar on scroll): the search row and tabs fold away
+   and the compact pill sits in the top row. Fixed + spacer so nothing below shifts. */
+.home {
+  position: fixed;
+  left: 0;
+  right: 0;
+  border-bottom-color: #ebebeb;
+  background: linear-gradient(180deg, #ffffff 40%, #f8f8f8 100%);
+  transition: background-color 0.25s;
+}
+
+.home[data-compact] {
+  background: var(--color-surface);
+}
+
+.homeTop {
+  /* Logo and menu keep their natural width; the tabs take what is left (and scroll if needed). */
+  grid-template-columns: minmax(auto, 1fr) minmax(0, max-content) minmax(auto, 1fr);
+  height: var(--home-top-height);
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.tabs {
+  display: flex;
+  justify-content: safe center; /* centred, but scrollable from the first tab when it overflows */
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  transition:
+    opacity 0.2s ease,
+    transform 0.25s cubic-bezier(0.2, 0, 0, 1),
+    visibility 0s linear 0s;
+}
+
+.home[data-compact] .tabs {
+  opacity: 0;
+  transform: translateY(-12px) scale(0.92);
+  visibility: hidden;
+  pointer-events: none;
+  transition-delay: 0s, 0s, 0.25s;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+/* Narrow windows: the tabs can overflow, so fade the edges to hint that they scroll. */
+@media (max-width: 1139px) {
+  .tabs {
+    padding: 0 12px;
+    mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 20px), transparent);
+  }
+}
+
+/* Bar centred in the middle column; equal side columns leave room for Filters on the right. */
+.searchRow {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(104px, 1fr) minmax(0, 850px) minmax(104px, 1fr);
+  column-gap: 16px;
+  align-items: start;
+  height: var(--home-search-height);
+  padding: 6px var(--page-gutter) 0;
+  transition:
+    height 0.25s cubic-bezier(0.2, 0, 0, 1),
+    padding 0.25s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.searchRow > :first-child {
+  grid-column: 2;
+  min-width: 0;
+}
+
+.home[data-compact] .searchRow {
+  height: 0;
+  padding-top: 0;
+}
+
+.aside {
+  grid-column: 3;
+  justify-self: end;
+  margin-top: 9px;
+  transition: opacity 0.15s;
+}
+
+.home[data-compact] .aside {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.homeSpacer {
+  height: calc(var(--home-top-height) + var(--home-search-height) + 1px);
+}

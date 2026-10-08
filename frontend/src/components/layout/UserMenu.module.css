@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 8px;
 }
 
 .hostLink,
@@ -14,8 +14,13 @@
   white-space: nowrap;
 }
 
+.hostLink {
+  font-size: 14px;
+  font-weight: 500;
+}
+
 .hostLink:hover {
-  background: var(--color-surface-muted);
+  background: #f2f2f2;
 }
 
 .role {
@@ -23,18 +28,27 @@
   font-weight: 500;
 }
 
-.trigger {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 5px 5px 5px 12px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
-  background: var(--color-surface);
+/* Profile and menu: separate 40px grey circles, like the reference. */
+.circle {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #f2f2f2;
+  color: var(--color-text);
+  transition: background-color 0.15s;
 }
 
-.trigger:hover {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
+.circle:hover {
+  background: var(--color-surface-hover);
+}
+
+.circle:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 2px;
 }
 
 .menu {

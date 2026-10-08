@@ -106,3 +106,8 @@ export function activeFilterCount(query: ExploreQuery): number {
     query.amenities.length
   );
 }
+
+/** A destination or dates turn Explore into the search-results layout (list + map). */
+export function isSearchMode(query: ExploreQuery): boolean {
+  return Boolean(query.location || (query.checkIn && query.checkOut));
+}

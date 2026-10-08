@@ -176,3 +176,76 @@
 .dotActive {
   background: #fff;
 }
+
+/* Results beside the map: photos crop to 4:3 like the reference results list. */
+.split .media,
+.split .carousel {
+  aspect-ratio: 4 / 3;
+}
+
+.highlighted .media {
+  box-shadow: 0 0 0 2px var(--color-dark);
+}
+
+.card {
+  scroll-margin: 200px 0 24px;
+}
+
+/* Homepage carousel card: near-square photo, one-line title, "price · rating" line. */
+.compact .media {
+  aspect-ratio: 182 / 173;
+  border-radius: 16px;
+}
+
+.compact .link {
+  border-radius: 16px;
+}
+
+.compact .badge {
+  top: 12px;
+  left: 12px;
+  max-width: calc(100% - 64px); /* never under the heart */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 12px;
+}
+
+.compact .heart {
+  top: 6px;
+  right: 6px;
+}
+
+.compactBody {
+  padding: 8px 2px 0;
+}
+
+.compactTitle {
+  margin: 0;
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.compactMeta {
+  margin: 2px 0 0;
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  line-height: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.compact .image {
+  transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.compact:hover .image {
+  transform: scale(1.03);
+}

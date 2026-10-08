@@ -23,9 +23,24 @@ interface ListingCardProps {
   linkQuery?: string;
   /** Nights in the searched stay; when set, the card shows the stay subtotal like Airbnb. */
   nights?: number;
+  /** "split": narrower card beside the results map (4:3 photo). "compact": homepage carousel card. */
+  variant?: "grid" | "split" | "compact";
+  /** Outlined because its map marker is selected. */
+  highlighted?: boolean;
+  /** Reports pointer hover so the matching map marker can be highlighted. */
+  onHoverChange?: (hovering: boolean) => void;
 }
 
-export function ListingCard({ listing, preloadImage = false, initiallySaved = false, linkQuery = "", nights }: ListingCardProps) {
+export function ListingCard({
+  listing,
+  preloadImage = false,
+  initiallySaved = false,
+  linkQuery = "",
+  nights,
+  variant = "grid",
+  highlighted = false,
+  onHoverChange,
+}: ListingCardProps) {
   const [index, setIndex] = useState(0);
   const [saved, setSaved] = useState(initiallySaved);
   const [pending, startTransition] = useTransition();
@@ -48,9 +63,17 @@ export function ListingCard({ listing, preloadImage = false, initiallySaved = fa
   // Airbnb-style card heading: "Villa in Assagao", or "Room in Anjuna" for private rooms.
   const kind = listing.room_type === "private_room" ? "Room" : (PROPERTY_LABELS[listing.property_type] ?? "Stay");
   const heading = `${kind} in ${listing.city}`;
+  const compact = variant === "compact";
+  // Derived from real ratings: high average with enough reviews to mean something.
+  const guestFavourite = listing.rating !== null && listing.rating >= 4.8 && listing.review_count >= 3;
+  const badge = compact && guestFavourite ? "Guest favourite" : listing.is_superhost ? "Superhost" : null;
 
   return (
-    <article className={styles.card}>
+    <article
+      className={`${styles.card} ${variant === "grid" ? "" : styles[variant]} ${highlighted ? styles.highlighted : ""}`}
+      onMouseEnter={onHoverChange && (() => onHoverChange(true))}
+      onMouseLeave={onHoverChange && (() => onHoverChange(false))}
+    >
       <Link href={`/listings/${listing.id}${linkQuery ? `?${linkQuery}` : ""}`} className={styles.link}>
         <div className={styles.media}>
           {image ? (
@@ -67,47 +90,64 @@ export function ListingCard({ listing, preloadImage = false, initiallySaved = fa
             <div className={styles.noImage}>No photo</div>
           )}
         </div>
-        <div className={styles.body}>
-          <div className={styles.topLine}>
-            <h3 className={styles.location}>{heading}</h3>
-            <span className={styles.rating}>
-              {listing.rating !== null ? (
+        {compact ? (
+          <div className={styles.compactBody}>
+            <h3 className={styles.compactTitle}>{heading}</h3>
+            <p className={styles.compactMeta}>
+              {formatPrice(listing.nightly_price, listing.currency)} for 1 night
+              {listing.rating !== null && (
                 <>
+                  {" · "}
                   <span aria-hidden="true">★</span> {listing.rating.toFixed(2)}
-                  <span aria-hidden="true"> ({listing.review_count})</span>
-                  <span className="visually-hidden">
-                    {" "}
-                    out of 5, {pluralize(listing.review_count, "review")}
-                  </span>
+                  <span className="visually-hidden"> out of 5, {pluralize(listing.review_count, "review")}</span>
+                </>
+              )}
+            </p>
+          </div>
+        ) : (
+          <div className={styles.body}>
+            <div className={styles.topLine}>
+              <h3 className={styles.location}>{heading}</h3>
+              <span className={styles.rating}>
+                {listing.rating !== null ? (
+                  <>
+                    <span aria-hidden="true">★</span> {listing.rating.toFixed(2)}
+                    <span aria-hidden="true"> ({listing.review_count})</span>
+                    <span className="visually-hidden">
+                      {" "}
+                      out of 5, {pluralize(listing.review_count, "review")}
+                    </span>
+                  </>
+                ) : (
+                  "New"
+                )}
+              </span>
+            </div>
+            <p className={styles.title}>{listing.title}</p>
+            <p className={styles.meta}>
+              {pluralize(listing.bedrooms, "bedroom")} · {pluralize(listing.beds, "bed")}
+              {variant === "split" && <> · {pluralize(listing.bathrooms, "bathroom")}</>}
+            </p>
+            <p className={styles.price}>
+              {nights ? (
+                // Display-only subtotal; the server quote on the listing page adds fees.
+                <>
+                  <strong className={styles.stayTotal}>
+                    {formatPrice(listing.nightly_price * nights, listing.currency)}
+                  </strong>{" "}
+                  for {pluralize(nights, "night")}
                 </>
               ) : (
-                "New"
+                <>
+                  <strong>{formatPrice(listing.nightly_price, listing.currency)}</strong> night
+                </>
               )}
-            </span>
+            </p>
           </div>
-          <p className={styles.title}>{listing.title}</p>
-          <p className={styles.meta}>
-            {pluralize(listing.bedrooms, "bedroom")} · {pluralize(listing.beds, "bed")}
-          </p>
-          <p className={styles.price}>
-            {nights ? (
-              // Display-only subtotal; the server quote on the listing page adds fees.
-              <>
-                <strong className={styles.stayTotal}>
-                  {formatPrice(listing.nightly_price * nights, listing.currency)}
-                </strong>{" "}
-                for {pluralize(nights, "night")}
-              </>
-            ) : (
-              <>
-                <strong>{formatPrice(listing.nightly_price, listing.currency)}</strong> night
-              </>
-            )}
-          </p>
-        </div>
+        )}
       </Link>
 
-      {listing.is_superhost && <span className={styles.badge}>Superhost</span>}
+      {badge && <span className={styles.badge}>{badge}</span>}
 
       <button
         type="button"
@@ -122,7 +162,7 @@ export function ListingCard({ listing, preloadImage = false, initiallySaved = fa
         </svg>
       </button>
 
-      {images.length > 1 && (
+      {images.length > 1 && !compact && (
         <div className={styles.carousel}>
           <button
             type="button"

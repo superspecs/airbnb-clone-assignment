@@ -24,6 +24,12 @@
   /* Layout */
   --page-gutter: 24px;
   --header-height: 80px;
+  /* Homepage header: top row (logo · tabs · menu) and the search row below it. */
+  --home-top-height: 96px;
+  --home-search-height: 104px;
+  /* Two-column page layouts (listing, booking, trip): flexible gap and side column. */
+  --column-gap: clamp(40px, 6vw, 96px);
+  --gallery-row: clamp(170px, 18vw, 238px);
 
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }

@@ -1,3 +1,7 @@
 .main {
   padding: 24px var(--page-gutter) 64px;
 }
+
+.homeMain {
+  padding-top: 56px;
+}

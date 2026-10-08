@@ -43,3 +43,71 @@
   color: var(--color-text);
   border-bottom-color: var(--color-dark);
 }
+
+/* Homepage top-row tabs. */
+.tabs {
+  display: flex;
+  flex: none;
+  align-items: stretch;
+  gap: clamp(14px, 1.6vw, 26px);
+  height: 64px;
+}
+
+.tab {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 2px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+
+.tab svg {
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.tab::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  border-radius: 2px;
+  background: transparent;
+  transition: background-color 0.15s;
+}
+
+.tab:hover {
+  color: var(--color-text);
+}
+
+.tab:hover svg {
+  transform: scale(1.08);
+}
+
+.tab:hover::after {
+  background: var(--color-border);
+}
+
+.tabActive,
+.tabActive:hover {
+  color: var(--color-text);
+}
+
+.tabActive::after,
+.tabActive:hover::after {
+  background: var(--color-dark);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 2px;
+  border-radius: 4px;
+}

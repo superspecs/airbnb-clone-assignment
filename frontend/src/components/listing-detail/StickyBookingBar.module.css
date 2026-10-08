@@ -12,9 +12,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 1120px;
+  max-width: calc(1120px + 2 * var(--page-gutter));
   height: 80px;
   margin: 0 auto;
+  padding: 0 var(--page-gutter);
 }
 
 .links {

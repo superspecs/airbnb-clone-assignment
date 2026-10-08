@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { RangeCalendar } from "@/components/ui/RangeCalendar";
 import { MAX_GUESTS } from "@/lib/constants";
@@ -11,7 +12,26 @@ import { marketplaceToday } from "@/lib/stay";
 
 import styles from "./SearchBar.module.css";
 
-type Panel = "dates" | "guests" | null;
+type Panel = "where" | "dates" | "guests" | null;
+
+/** When the full bar collapses into the compact pill. */
+export type SearchBarCollapse = "never" | "scroll" | "always";
+
+// Scroll hysteresis so the bar doesn't flicker between states around one threshold.
+const COLLAPSE_AFTER = 24;
+const EXPAND_BEFORE = 4;
+
+const titleCase = (s: string) => s.replace(/\b\p{L}/gu, (c) => c.toUpperCase());
+
+/** "13–16 Nov", or "28 Nov – 2 Dec" across months. */
+function compactDates(checkIn: string, checkOut: string): string {
+  const day = (iso: string) => String(Number(iso.slice(8, 10)));
+  const month = (iso: string) =>
+    new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-IN", { month: "short", timeZone: "UTC" });
+  return checkIn.slice(0, 7) === checkOut.slice(0, 7)
+    ? `${day(checkIn)}–${day(checkOut)} ${month(checkOut)}`
+    : `${day(checkIn)} ${month(checkIn)} – ${day(checkOut)} ${month(checkOut)}`;
+}
 
 function Stepper({
   label,
@@ -61,7 +81,18 @@ function Stepper({
   );
 }
 
-export function SearchBar({ query }: { query: ExploreQuery }) {
+interface SearchBarProps {
+  query: ExploreQuery;
+  collapse?: SearchBarCollapse;
+  /**
+   * "inline": bar and pill share the header's top row. "below": the bar sits on the homepage
+   * header's own search row and the pill rises into the top row; the header itself folds
+   * (it reads `data-compact`, which this component sets).
+   */
+  placement?: "inline" | "below";
+}
+
+export function SearchBar({ query, collapse = "never", placement = "inline" }: SearchBarProps) {
   const router = useRouter();
   const [location, setLocation] = useState(query.location ?? "");
   const [checkIn, setCheckIn] = useState<string | null>(query.checkIn ?? null);
@@ -71,17 +102,72 @@ export function SearchBar({ query }: { query: ExploreQuery }) {
   const [children, setChildren] = useState(0);
   const [panel, setPanel] = useState<Panel>(null);
   const [error, setError] = useState<string | null>(null);
+  // Compact pill state: `scrolled` follows the page; `open` is the pill expanded by the user.
+  const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
   const barRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const guests = adults + children;
   const today = marketplaceToday();
+  const compact = collapse === "always" || (collapse === "scroll" && scrolled);
+  const showFull = !compact || open;
+
+  // Homepage header folds while compact and unfolds again when the pill is opened.
+  useEffect(() => {
+    if (placement !== "below") return;
+    const header = barRef.current?.closest("header");
+    header?.toggleAttribute("data-compact", compact && !open);
+  }, [placement, compact, open]);
+  // One passive, rAF-throttled scroll listener: collapses the bar on scroll (home) and closes an
+  // expanded pill when the page moves, like the reference.
+  useEffect(() => {
+    if (collapse === "never") return;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const y = window.scrollY;
+      if (collapse === "scroll") setScrolled((was) => (was ? y > EXPAND_BEFORE : y > COLLAPSE_AFTER));
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [collapse]);
 
   useEffect(() => {
-    if (!panel) return;
+    if (!open) return;
+    const startY = window.scrollY;
+    const onScroll = () => {
+      if (Math.abs(window.scrollY - startY) > 60) closeAll();
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [open]);
+
+  function closeAll() {
+    setPanel(null);
+    setOpen(false);
+  }
+
+  /** Expand the compact pill and jump straight to the part the user clicked. */
+  function expand(target: Panel) {
+    setOpen(true);
+    setPanel(target);
+    if (target === "where") requestAnimationFrame(() => inputRef.current?.focus());
+  }
+
+  useEffect(() => {
+    if (!panel && !open) return;
     const onPointerDown = (event: PointerEvent) => {
-      if (!barRef.current?.contains(event.target as Node)) setPanel(null);
+      if (!barRef.current?.contains(event.target as Node)) closeAll();
     };
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setPanel(null);
+      if (event.key === "Escape") closeAll();
     };
     document.addEventListener("pointerdown", onPointerDown);
     document.addEventListener("keydown", onKeyDown);
@@ -89,7 +175,7 @@ export function SearchBar({ query }: { query: ExploreQuery }) {
       document.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [panel]);
+  }, [panel, open]);
 
   function changeChildren(next: number) {
     setChildren(next);
@@ -104,7 +190,7 @@ export function SearchBar({ query }: { query: ExploreQuery }) {
       return;
     }
     setError(null);
-    setPanel(null);
+    closeAll();
     router.push(
       exploreHref(query, {
         location: location.trim() || undefined,
@@ -117,39 +203,78 @@ export function SearchBar({ query }: { query: ExploreQuery }) {
   }
 
   const guestLabel = guests ? pluralize(guests, "guest") : "Add guests";
+  const place = location.trim() ? titleCase(location.trim()) : "";
 
   return (
-    <div className={styles.wrapper} ref={barRef}>
-      <form role="search" aria-label="Search stays" className={styles.bar} onSubmit={onSubmit}>
-        <label className={styles.segment} onFocus={() => setPanel(null)}>
+    <div
+      className={`${styles.wrapper} ${placement === "below" ? styles.below : ""} ${compact ? styles.isCompact : ""} ${showFull ? styles.showFull : ""} ${
+        compact && open ? styles.overlay : ""
+      }`}
+      ref={barRef}
+    >
+      {/* Compact pill: place · dates · guests. Each part opens the matching part of the full bar. */}
+      <div className={styles.pill} role="group" aria-label="Search" aria-hidden={showFull} inert={showFull}>
+        <button type="button" className={styles.pillPart} onClick={() => expand("where")}>
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" className={styles.pillIcon}>
+            <path d="M3 11 12 4l9 7v9H3z M9.5 20v-5.5h5V20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+          </svg>
+          {place ? `Homes in ${place}` : "Anywhere"}
+        </button>
+        <span className={styles.pillDivider} aria-hidden="true" />
+        <button type="button" className={styles.pillPart} onClick={() => expand("dates")}>
+          {checkIn && checkOut ? compactDates(checkIn, checkOut) : "Anytime"}
+        </button>
+        <span className={styles.pillDivider} aria-hidden="true" />
+        <button type="button" className={`${styles.pillPart} ${guests ? "" : styles.pillMuted}`} onClick={() => expand("guests")}>
+          {guestLabel}
+        </button>
+        <button type="button" className={styles.pillSearch} onClick={() => expand("where")} aria-label="Open search">
+          <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+            <circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" strokeWidth="3" />
+            <path d="m15.5 15.5 5 5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+          </svg>
+        </button>
+      </div>
+
+      <form
+        role="search"
+        aria-label="Search stays"
+        className={`${styles.bar} ${panel ? styles.barActive : ""}`}
+        onSubmit={onSubmit}
+        aria-hidden={!showFull}
+        inert={!showFull}
+      >
+        <label
+          className={`${styles.segment} ${panel === "where" ? styles.active : ""}`}
+          onFocus={() => setPanel("where")}
+        >
           <span className={styles.label}>Where</span>
           <input
             className={styles.input}
             type="search"
             name="location"
             placeholder="Search destinations"
+            ref={inputRef}
             value={location}
             onChange={(e) => setLocation(e.target.value)}
+            // Escape closes the search (document handler); stop the browser clearing a search input.
+            onKeyDown={(e) => e.key === "Escape" && e.preventDefault()}
             autoComplete="off"
           />
         </label>
 
-        {(["Check in", "Check out"] as const).map((label) => {
-          const value = label === "Check in" ? checkIn : checkOut;
-          return (
-            <button
-              key={label}
-              type="button"
-              className={`${styles.segment} ${panel === "dates" ? styles.active : ""}`}
-              aria-expanded={panel === "dates"}
-              aria-controls="search-dates"
-              onClick={() => setPanel(panel === "dates" ? null : "dates")}
-            >
-              <span className={styles.label}>{label}</span>
-              <span className={value ? styles.value : styles.placeholder}>{value ? shortDate(value) : "Add dates"}</span>
-            </button>
-          );
-        })}
+        <button
+          type="button"
+          className={`${styles.segment} ${panel === "dates" ? styles.active : ""}`}
+          aria-expanded={panel === "dates"}
+          aria-controls="search-dates"
+          onClick={() => setPanel(panel === "dates" ? null : "dates")}
+        >
+          <span className={styles.label}>When</span>
+          <span className={checkIn ? styles.value : styles.placeholder}>
+            {checkIn ? `${shortDate(checkIn)} – ${checkOut ? shortDate(checkOut) : "Add checkout"}` : "Add dates"}
+          </span>
+        </button>
 
         <button
           type="button"
@@ -207,6 +332,11 @@ export function SearchBar({ query }: { query: ExploreQuery }) {
           />
         </div>
       )}
+
+      {/* Portalled so it stacks under the header (z-index 20) but over the page. */}
+      {compact &&
+        open &&
+        createPortal(<div className={styles.backdrop} onClick={closeAll} aria-hidden="true" />, document.body)}
 
       {error && (
         <p className={styles.error} role="alert">

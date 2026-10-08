@@ -2,7 +2,8 @@
   position: relative;
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
-  grid-template-rows: 238px 238px;
+  /* Rows scale with the window (238px from ~1320px wide) so photos keep a landscape crop. */
+  grid-template-rows: repeat(2, var(--gallery-row));
   gap: 8px;
   overflow: hidden;
   border-radius: var(--radius-md);
