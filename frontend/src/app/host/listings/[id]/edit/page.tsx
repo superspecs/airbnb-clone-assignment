@@ -34,7 +34,8 @@ export default function EditListingPage({ params }: PageProps<"/host/listings/[i
 async function EditListing({ params }: Pick<PageProps<"/host/listings/[id]/edit">, "params">) {
   const id = Number((await params).id);
   if (!Number.isInteger(id) || id < 1) notFound();
-  const [userId, users] = await Promise.all([getCurrentUserId(), getDemoUsers().catch(() => [])]);
+  const [userId, users] = await Promise.all([getCurrentUserId(), getDemoUsers().catch((error: unknown) => error)]);
+  if (!Array.isArray(users)) return <ResultsError title="We couldn't load this listing" message={errorMessage(users)} />;
   if (!users.find((u) => u.id === userId)?.is_host) return <HostOnly hosts={users.filter((u) => u.is_host)} />;
 
   const result = await Promise.all([getHostListing(id, userId), getAmenities()]).then(
@@ -43,7 +44,7 @@ async function EditListing({ params }: Pick<PageProps<"/host/listings/[id]/edit"
   );
   if (!result.ok) {
     if (result.error instanceof ApiError && result.error.status === 404) notFound();
-    return <ResultsError message={errorMessage(result.error)} />;
+    return <ResultsError title="We couldn't load this listing" message={errorMessage(result.error)} />;
   }
   return <ListingForm amenities={result.amenities} listing={result.listing} />;
 }

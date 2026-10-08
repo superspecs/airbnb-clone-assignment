@@ -6,7 +6,7 @@ import { useState, useTransition } from "react";
 
 import { toggleSaved } from "@/app/actions";
 import { toast } from "@/components/ui/Toast";
-import { formatPrice, pluralize } from "@/lib/format";
+import { formatPrice, pluralize, PROPERTY_LABELS } from "@/lib/format";
 import { isOptimizableImage } from "@/lib/images";
 import type { ListingCard as ListingCardData } from "@/lib/types/listing";
 
@@ -21,9 +21,11 @@ interface ListingCardProps {
   initiallySaved?: boolean;
   /** Query string (dates/guests) carried to the listing page. */
   linkQuery?: string;
+  /** Nights in the searched stay; when set, the card shows the stay subtotal like Airbnb. */
+  nights?: number;
 }
 
-export function ListingCard({ listing, preloadImage = false, initiallySaved = false, linkQuery = "" }: ListingCardProps) {
+export function ListingCard({ listing, preloadImage = false, initiallySaved = false, linkQuery = "", nights }: ListingCardProps) {
   const [index, setIndex] = useState(0);
   const [saved, setSaved] = useState(initiallySaved);
   const [pending, startTransition] = useTransition();
@@ -43,7 +45,9 @@ export function ListingCard({ listing, preloadImage = false, initiallySaved = fa
   }
   const images = listing.images;
   const image = images[index];
-  const location = `${listing.city}, ${listing.state}`;
+  // Airbnb-style card heading: "Villa in Assagao", or "Room in Anjuna" for private rooms.
+  const kind = listing.room_type === "private_room" ? "Room" : (PROPERTY_LABELS[listing.property_type] ?? "Stay");
+  const heading = `${kind} in ${listing.city}`;
 
   return (
     <article className={styles.card}>
@@ -65,11 +69,12 @@ export function ListingCard({ listing, preloadImage = false, initiallySaved = fa
         </div>
         <div className={styles.body}>
           <div className={styles.topLine}>
-            <h3 className={styles.location}>{location}</h3>
+            <h3 className={styles.location}>{heading}</h3>
             <span className={styles.rating}>
               {listing.rating !== null ? (
                 <>
                   <span aria-hidden="true">★</span> {listing.rating.toFixed(2)}
+                  <span aria-hidden="true"> ({listing.review_count})</span>
                   <span className="visually-hidden">
                     {" "}
                     out of 5, {pluralize(listing.review_count, "review")}
@@ -85,7 +90,19 @@ export function ListingCard({ listing, preloadImage = false, initiallySaved = fa
             {pluralize(listing.bedrooms, "bedroom")} · {pluralize(listing.beds, "bed")}
           </p>
           <p className={styles.price}>
-            <strong>{formatPrice(listing.nightly_price, listing.currency)}</strong> night
+            {nights ? (
+              // Display-only subtotal; the server quote on the listing page adds fees.
+              <>
+                <strong className={styles.stayTotal}>
+                  {formatPrice(listing.nightly_price * nights, listing.currency)}
+                </strong>{" "}
+                for {pluralize(nights, "night")}
+              </>
+            ) : (
+              <>
+                <strong>{formatPrice(listing.nightly_price, listing.currency)}</strong> night
+              </>
+            )}
           </p>
         </div>
       </Link>

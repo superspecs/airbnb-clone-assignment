@@ -9,9 +9,10 @@ interface ListingGridProps {
   listings: ListingCardData[];
   savedIds?: number[];
   linkQuery?: string;
+  nights?: number;
 }
 
-export function ListingGrid({ listings, savedIds = [], linkQuery }: ListingGridProps) {
+export function ListingGrid({ listings, savedIds = [], linkQuery, nights }: ListingGridProps) {
   const saved = new Set(savedIds);
   return (
     <ul className={styles.grid}>
@@ -22,6 +23,7 @@ export function ListingGrid({ listings, savedIds = [], linkQuery }: ListingGridP
             preloadImage={i < ABOVE_THE_FOLD}
             initiallySaved={saved.has(listing.id)}
             linkQuery={linkQuery}
+            nights={nights}
           />
         </li>
       ))}

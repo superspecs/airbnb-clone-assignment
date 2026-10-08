@@ -3,29 +3,85 @@
 import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useRef, useState } from "react";
 
+import { RangeCalendar } from "@/components/ui/RangeCalendar";
 import { MAX_GUESTS } from "@/lib/constants";
 import { type ExploreQuery, exploreHref } from "@/lib/explore-query";
-import { pluralize, todayIso } from "@/lib/format";
+import { pluralize, shortDate } from "@/lib/format";
+import { marketplaceToday } from "@/lib/stay";
 
 import styles from "./SearchBar.module.css";
+
+type Panel = "dates" | "guests" | null;
+
+function Stepper({
+  label,
+  hint,
+  value,
+  min,
+  max,
+  onChange,
+}: {
+  label: string;
+  hint: string;
+  value: number;
+  min: number;
+  max: number;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <div className={styles.stepperRow}>
+      <div>
+        <p className={styles.stepperTitle}>{label}</p>
+        <p className={styles.stepperHint}>{hint}</p>
+      </div>
+      <div className={styles.stepper}>
+        <button
+          type="button"
+          className={styles.stepButton}
+          onClick={() => onChange(value - 1)}
+          disabled={value <= min}
+          aria-label={`Decrease ${label.toLowerCase()}`}
+        >
+          −
+        </button>
+        <span className={styles.stepValue} aria-live="polite">
+          {value}
+        </span>
+        <button
+          type="button"
+          className={styles.stepButton}
+          onClick={() => onChange(value + 1)}
+          disabled={value >= max}
+          aria-label={`Increase ${label.toLowerCase()}`}
+        >
+          +
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export function SearchBar({ query }: { query: ExploreQuery }) {
   const router = useRouter();
   const [location, setLocation] = useState(query.location ?? "");
-  const [checkIn, setCheckIn] = useState(query.checkIn ?? "");
-  const [checkOut, setCheckOut] = useState(query.checkOut ?? "");
-  const [guests, setGuests] = useState(query.guests ?? 0);
-  const [guestsOpen, setGuestsOpen] = useState(false);
+  const [checkIn, setCheckIn] = useState<string | null>(query.checkIn ?? null);
+  const [checkOut, setCheckOut] = useState<string | null>(query.checkOut ?? null);
+  // The API filters on total guests; adults + children make up that total.
+  const [adults, setAdults] = useState(query.guests ?? 0);
+  const [children, setChildren] = useState(0);
+  const [panel, setPanel] = useState<Panel>(null);
   const [error, setError] = useState<string | null>(null);
-  const guestsRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+  const guests = adults + children;
+  const today = marketplaceToday();
 
   useEffect(() => {
-    if (!guestsOpen) return;
+    if (!panel) return;
     const onPointerDown = (event: PointerEvent) => {
-      if (!guestsRef.current?.contains(event.target as Node)) setGuestsOpen(false);
+      if (!barRef.current?.contains(event.target as Node)) setPanel(null);
     };
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setGuestsOpen(false);
+      if (event.key === "Escape") setPanel(null);
     };
     document.addEventListener("pointerdown", onPointerDown);
     document.addEventListener("keydown", onKeyDown);
@@ -33,46 +89,39 @@ export function SearchBar({ query }: { query: ExploreQuery }) {
       document.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [guestsOpen]);
+  }, [panel]);
 
-  function onCheckInChange(value: string) {
-    setCheckIn(value);
-    if (checkOut && value && checkOut <= value) setCheckOut("");
+  function changeChildren(next: number) {
+    setChildren(next);
+    if (next > 0 && adults === 0) setAdults(1); // children travel with at least one adult
   }
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (Boolean(checkIn) !== Boolean(checkOut)) {
-      setError("Add both a check-in and a check-out date, or leave both empty.");
-      return;
-    }
-    if (checkIn && checkOut <= checkIn) {
-      setError("Check-out must be after check-in.");
-      return;
-    }
-    if (checkIn && checkIn < todayIso()) {
-      setError("Check-in can't be in the past.");
+      setError("Choose a check-out date, or clear the dates.");
+      setPanel("dates");
       return;
     }
     setError(null);
-    setGuestsOpen(false);
+    setPanel(null);
     router.push(
       exploreHref(query, {
         location: location.trim() || undefined,
-        checkIn: checkIn || undefined,
-        checkOut: checkOut || undefined,
+        checkIn: checkIn ?? undefined,
+        checkOut: checkOut ?? undefined,
         guests: guests || undefined,
         page: 1,
       }),
     );
   }
 
-  const today = todayIso();
+  const guestLabel = guests ? pluralize(guests, "guest") : "Add guests";
 
   return (
-    <div className={styles.wrapper}>
+    <div className={styles.wrapper} ref={barRef}>
       <form role="search" aria-label="Search stays" className={styles.bar} onSubmit={onSubmit}>
-        <label className={`${styles.segment} ${styles.where}`}>
+        <label className={styles.segment} onFocus={() => setPanel(null)}>
           <span className={styles.label}>Where</span>
           <input
             className={styles.input}
@@ -85,89 +134,80 @@ export function SearchBar({ query }: { query: ExploreQuery }) {
           />
         </label>
 
-        <label className={styles.segment}>
-          <span className={styles.label}>Check in</span>
-          <input
-            className={styles.input}
-            type="date"
-            name="check_in"
-            min={today}
-            value={checkIn}
-            onChange={(e) => onCheckInChange(e.target.value)}
-            suppressHydrationWarning
-          />
-        </label>
+        {(["Check in", "Check out"] as const).map((label) => {
+          const value = label === "Check in" ? checkIn : checkOut;
+          return (
+            <button
+              key={label}
+              type="button"
+              className={`${styles.segment} ${panel === "dates" ? styles.active : ""}`}
+              aria-expanded={panel === "dates"}
+              aria-controls="search-dates"
+              onClick={() => setPanel(panel === "dates" ? null : "dates")}
+            >
+              <span className={styles.label}>{label}</span>
+              <span className={value ? styles.value : styles.placeholder}>{value ? shortDate(value) : "Add dates"}</span>
+            </button>
+          );
+        })}
 
-        <label className={styles.segment}>
-          <span className={styles.label}>Check out</span>
-          <input
-            className={styles.input}
-            type="date"
-            name="check_out"
-            min={checkIn || today}
-            value={checkOut}
-            onChange={(e) => setCheckOut(e.target.value)}
-            suppressHydrationWarning
-          />
-        </label>
+        <button
+          type="button"
+          className={`${styles.segment} ${panel === "guests" ? styles.active : ""}`}
+          aria-expanded={panel === "guests"}
+          aria-controls="search-guests"
+          onClick={() => setPanel(panel === "guests" ? null : "guests")}
+        >
+          <span className={styles.label}>Who</span>
+          <span className={guests ? styles.value : styles.placeholder}>{guestLabel}</span>
+        </button>
 
-        <div className={`${styles.segment} ${styles.who}`} ref={guestsRef}>
-          <button
-            type="button"
-            className={styles.whoButton}
-            aria-expanded={guestsOpen}
-            aria-controls="guest-picker"
-            onClick={() => setGuestsOpen((open) => !open)}
-          >
-            <span className={styles.label}>Who</span>
-            <span className={guests ? styles.value : styles.placeholder}>
-              {guests ? pluralize(guests, "guest") : "Add guests"}
-            </span>
-          </button>
-
-          {guestsOpen && (
-            <div id="guest-picker" className={styles.popover} role="group" aria-label="Guests">
-              <div className={styles.stepperRow}>
-                <div>
-                  <p className={styles.stepperTitle}>Guests</p>
-                  <p className={styles.stepperHint}>Adults and children</p>
-                </div>
-                <div className={styles.stepper}>
-                  <button
-                    type="button"
-                    className={styles.stepButton}
-                    onClick={() => setGuests((g) => Math.max(0, g - 1))}
-                    disabled={guests === 0}
-                    aria-label="Decrease guests"
-                  >
-                    −
-                  </button>
-                  <span className={styles.stepValue} aria-live="polite">
-                    {guests}
-                  </span>
-                  <button
-                    type="button"
-                    className={styles.stepButton}
-                    onClick={() => setGuests((g) => Math.min(MAX_GUESTS, g + 1))}
-                    disabled={guests >= MAX_GUESTS}
-                    aria-label="Increase guests"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <button type="submit" className={styles.submit}>
+        <button type="submit" className={styles.submit} aria-label="Search">
           <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
             <circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" strokeWidth="3" />
             <path d="m15.5 15.5 5 5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
           </svg>
-          <span>Search</span>
+          {panel && <span>Search</span>}
         </button>
       </form>
+
+      {panel === "dates" && (
+        <div id="search-dates" className={`${styles.panel} ${styles.datesPanel}`} role="dialog" aria-label="Choose dates">
+          <RangeCalendar
+            today={today}
+            checkIn={checkIn}
+            checkOut={checkOut}
+            onChange={(inDate, outDate) => {
+              setCheckIn(inDate);
+              setCheckOut(outDate);
+              setError(null);
+            }}
+            onComplete={() => setPanel("guests")}
+          />
+        </div>
+      )}
+
+      {panel === "guests" && (
+        <div id="search-guests" className={`${styles.panel} ${styles.guestsPanel}`} role="dialog" aria-label="Guests">
+          <Stepper
+            label="Adults"
+            hint="Ages 13 or above"
+            value={adults}
+            min={children > 0 ? 1 : 0}
+            max={MAX_GUESTS - children}
+            onChange={setAdults}
+          />
+          <Stepper
+            label="Children"
+            hint="Ages 2–12"
+            value={children}
+            min={0}
+            max={MAX_GUESTS - adults}
+            onChange={changeChildren}
+          />
+        </div>
+      )}
+
       {error && (
         <p className={styles.error} role="alert">
           {error}

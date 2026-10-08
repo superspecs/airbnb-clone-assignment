@@ -33,10 +33,11 @@ export default function NewListingPage() {
 async function NewListing() {
   const [userId, users, amenities] = await Promise.all([
     getCurrentUserId(),
-    getDemoUsers().catch(() => []),
+    getDemoUsers().catch((error: unknown) => error),
     getAmenities().catch((error: unknown) => error),
   ]);
+  if (!Array.isArray(users)) return <ResultsError title="We couldn't load the listing form" message={errorMessage(users)} />;
   if (!users.find((u) => u.id === userId)?.is_host) return <HostOnly hosts={users.filter((u) => u.is_host)} />;
-  if (!Array.isArray(amenities)) return <ResultsError message={errorMessage(amenities)} />;
+  if (!Array.isArray(amenities)) return <ResultsError title="We couldn't load the listing form" message={errorMessage(amenities)} />;
   return <ListingForm amenities={amenities} />;
 }

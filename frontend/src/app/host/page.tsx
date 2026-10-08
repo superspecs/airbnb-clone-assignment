@@ -32,7 +32,12 @@ export default function HostDashboardPage() {
 
 async function Dashboard() {
   const userId = await getCurrentUserId();
-  const users = await getDemoUsers().catch(() => []);
+  const usersResult = await getDemoUsers().then(
+    (users) => ({ ok: true as const, users }),
+    (error: unknown) => ({ ok: false as const, message: errorMessage(error) }),
+  );
+  if (!usersResult.ok) return <ResultsError title="We couldn't load your hosting dashboard" message={usersResult.message} />;
+  const { users } = usersResult;
   const me = users.find((u) => u.id === userId);
   if (!me?.is_host) return <HostOnly hosts={users.filter((u) => u.is_host)} />;
 
@@ -40,7 +45,7 @@ async function Dashboard() {
     ([listings, bookings]) => ({ ok: true as const, listings, bookings }),
     (error: unknown) => ({ ok: false as const, message: errorMessage(error) }),
   );
-  if (!result.ok) return <ResultsError message={result.message} />;
+  if (!result.ok) return <ResultsError title="We couldn't load your hosting dashboard" message={result.message} />;
   const { listings, bookings } = result;
   const today = marketplaceToday();
   const upcoming = bookings.filter((b) => b.status === "confirmed" && b.check_out > today);

@@ -127,7 +127,7 @@ export function LocationMap({ listing }: { listing: ListingDetail }) {
     <section className={styles.section} id="location">
       <h2 className={styles.heading}>Where you&apos;ll be</h2>
       <p className={styles.paragraph}>
-        {listing.address}, {listing.state}, {listing.country}
+        {listing.city}, {listing.state}, {listing.country}
       </p>
       <iframe className={styles.map} title={`Map of ${listing.city}`} src={src} loading="lazy" />
       <p className={styles.muted}>Approximate location. The exact address is shared after booking.</p>

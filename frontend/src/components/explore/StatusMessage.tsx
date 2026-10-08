@@ -18,13 +18,13 @@ export function EmptyResults({ clearHref }: { clearHref: string }) {
   );
 }
 
-export function ResultsError({ message }: { message: string }) {
+export function ResultsError({ message, title = "We couldn't load stays" }: { message: string; title?: string }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
   return (
     <div className={styles.box} role="alert">
-      <h2 className={styles.title}>We couldn&apos;t load stays</h2>
+      <h2 className={styles.title}>{title}</h2>
       <p className={styles.text}>{message}</p>
       <button
         type="button"

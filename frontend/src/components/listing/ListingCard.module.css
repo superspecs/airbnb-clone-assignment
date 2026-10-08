@@ -63,6 +63,10 @@
   margin: 6px 0 0;
 }
 
+.stayTotal {
+  text-decoration: underline;
+}
+
 .badge {
   position: absolute;
   top: 12px;

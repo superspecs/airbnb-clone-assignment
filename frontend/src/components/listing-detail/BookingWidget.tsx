@@ -76,7 +76,7 @@ export function BookingWidget({ nightlyPrice, currency, rating, reviewCount }: B
     : null;
 
   return (
-    <aside className={styles.card} aria-label="Reserve this place">
+    <aside id="booking-widget" className={styles.card} aria-label="Reserve this place">
       <div className={styles.priceLine}>
         {ready ? (
           <p>

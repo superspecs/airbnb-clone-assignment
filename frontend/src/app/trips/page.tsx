@@ -37,7 +37,7 @@ async function TripsList() {
     (trips) => ({ ok: true as const, trips }),
     (error: unknown) => ({ ok: false as const, message: errorMessage(error) }),
   );
-  if (!result.ok) return <ResultsError message={result.message} />;
+  if (!result.ok) return <ResultsError title="We couldn't load your trips" message={result.message} />;
 
   const today = marketplaceToday();
   const confirmed = result.trips.filter((t) => t.status === "confirmed");

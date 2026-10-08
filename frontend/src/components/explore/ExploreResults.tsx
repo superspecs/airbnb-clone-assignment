@@ -5,6 +5,7 @@ import { searchListings } from "@/lib/api/listings";
 import type { ExploreQuery } from "@/lib/explore-query";
 import { pluralize, shortDate } from "@/lib/format";
 import { getCurrentUserId } from "@/lib/session";
+import { nightsBetween } from "@/lib/stay";
 
 import styles from "./ExploreResults.module.css";
 import { Pagination } from "./Pagination";
@@ -12,7 +13,8 @@ import { EmptyResults, ResultsError } from "./StatusMessage";
 
 function summary(query: ExploreQuery, total: number): string {
   const parts = [pluralize(total, "stay")];
-  if (query.location) parts[0] += ` in ${query.location}`;
+  // Show the typed place in title case ("goa" → "Goa").
+  if (query.location) parts[0] += ` in ${query.location.replace(/\b\p{L}/gu, (c) => c.toUpperCase())}`;
   if (query.checkIn && query.checkOut) parts.push(`${shortDate(query.checkIn)} – ${shortDate(query.checkOut)}`);
   if (query.guests) parts.push(pluralize(query.guests, "guest"));
   return parts.join(" · ");
@@ -43,6 +45,7 @@ export async function ExploreResults({ query }: { query: ExploreQuery }) {
   if (!result.ok) return <ResultsError message={result.message} />;
 
   const { items, total, total_pages } = result.data;
+  const nights = query.checkIn && query.checkOut ? nightsBetween(query.checkIn, query.checkOut) : undefined;
   // Also covers a page number beyond the last page (e.g. an edited URL).
   if (items.length === 0) return <EmptyResults clearHref="/" />;
 
@@ -52,9 +55,11 @@ export async function ExploreResults({ query }: { query: ExploreQuery }) {
         <h1 id="results-heading" className={styles.title}>
           {summary(query, total)}
         </h1>
-        <p className={styles.note}>Prices are per night, before fees</p>
+        <p className={styles.note}>
+          {nights ? `Prices for ${pluralize(nights, "night")}, before cleaning and service fees` : "Prices are per night, before fees"}
+        </p>
       </div>
-      <ListingGrid listings={items} savedIds={savedIds} linkQuery={stayQuery(query)} />
+      <ListingGrid listings={items} savedIds={savedIds} linkQuery={stayQuery(query)} nights={nights} />
       <Pagination query={query} totalPages={total_pages} />
     </section>
   );

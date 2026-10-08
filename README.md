@@ -190,6 +190,9 @@ The two apps deploy independently from this repository.
 | `CORS_ORIGINS` | `https://stays-demo.vercel.app` |
 | `PYTHON_VERSION` | `3.14.3` |
 
+Render builds only when files under `backend/` change (the service's `rootDir`), so
+frontend or docs pushes never redeploy the API or reset its database.
+
 **Current plan: Render Free — data is not persistent.** The free plan cannot attach a disk, so
 `DATABASE_URL` points at the instance's ephemeral filesystem and the database is recreated from
 seed data on every redeploy, restart, or wake-up (free services sleep after 15 idle minutes and
@@ -202,8 +205,15 @@ startup only creates missing tables/triggers and never reseeds a non-empty datab
 ### Frontend — Vercel (project `stays-demo`, root directory `frontend/`)
 
 Production env: `NEXT_PUBLIC_API_BASE_URL=https://airbnb-clone-assignment-api.onrender.com/api/v1`
-(baked in at build time). The project is deployed with the Vercel CLI; connect the GitHub
-repository in Vercel (Settings → Git) to deploy on every push.
+(baked in at build time). Once the GitHub repository is connected in Vercel (Settings → Git,
+production branch `main`), every push to `main` redeploys the frontend; until then deploy with
+`npx vercel deploy --prod` from a checkout linked to the `stays-demo` project.
+
+### Keep-alive (free plan)
+
+`.github/workflows/keep-backend-awake.yml` pings the health endpoint every 10 minutes when the
+repository variable `BACKEND_HEALTH_URL` is set. GitHub disables scheduled workflows after 60
+days without repository activity; re-enable it from the Actions tab if that happens.
 
 ## Known limitations
 

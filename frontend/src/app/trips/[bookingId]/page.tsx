@@ -40,7 +40,7 @@ async function TripDetail({ params }: Pick<PageProps<"/trips/[bookingId]">, "par
   );
   if (!result.ok) {
     if (result.error instanceof ApiError && result.error.status === 404) notFound();
-    return <ResultsError message={errorMessage(result.error)} />;
+    return <ResultsError title="We couldn't load this reservation" message={errorMessage(result.error)} />;
   }
   const { booking } = result;
   const { listing } = booking;

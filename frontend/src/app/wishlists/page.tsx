@@ -34,7 +34,7 @@ async function SavedListings() {
     (wishlist) => ({ ok: true as const, wishlist }),
     (error: unknown) => ({ ok: false as const, message: errorMessage(error) }),
   );
-  if (!result.ok) return <ResultsError message={result.message} />;
+  if (!result.ok) return <ResultsError title="We couldn't load your wishlist" message={result.message} />;
   const { items, listing_ids } = result.wishlist;
 
   if (items.length === 0) {
