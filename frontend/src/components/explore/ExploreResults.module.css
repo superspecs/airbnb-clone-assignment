@@ -19,5 +19,6 @@
 }
 
 .home {
-  padding-bottom: 24px;
+  /* The inspiration band runs straight into the grey footer. */
+  margin-bottom: -64px;
 }

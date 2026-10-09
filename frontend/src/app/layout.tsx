@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
+import { SiteFooter } from "@/components/layout/SiteFooter";
 import { ToastFromUrl, Toaster } from "@/components/ui/Toast";
 
 import "./globals.css";
@@ -15,6 +16,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="en">
       <body>
         {children}
+        <SiteFooter />
         <Toaster />
         <Suspense fallback={null}>
           <ToastFromUrl />

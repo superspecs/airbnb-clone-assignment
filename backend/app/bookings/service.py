@@ -181,13 +181,14 @@ def get_booking(db: Session, user: User, booking_id: int) -> schemas.BookingOut:
 
 
 def cancel_booking(db: Session, user: User, booking_id: int) -> schemas.BookingOut:
+    """The guest or the listing's host may cancel before check-in; the dates free immediately
+    (cancelled bookings never block availability). Refunds are simulated: always the full total."""
+    # Visibility already limits callers to the guest and the listing's host (others get 404).
     booking = _load_visible_booking(db, user, booking_id)
-    if booking.guest_id != user.id:
-        raise AppError(403, "NOT_YOUR_BOOKING", "Only the guest can cancel this booking.")
     if booking.status is BookingStatus.CANCELLED:
         raise AppError(409, "ALREADY_CANCELLED", "This booking is already cancelled.")
     if booking.check_in <= today():
-        raise AppError(409, "TRIP_STARTED", "Trips that have started can't be cancelled.")
+        raise AppError(409, "TRIP_STARTED", "Stays that have started can't be cancelled.")
     booking.status = BookingStatus.CANCELLED
     db.commit()
     return get_booking(db, user, booking_id)

@@ -3,10 +3,10 @@ import { Suspense } from "react";
 import { ExploreResults } from "@/components/explore/ExploreResults";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { ListingGridSkeleton } from "@/components/listing/ListingGrid";
-import { CategoryBar, CategoryTabs } from "@/components/search/CategoryBar";
-import { FiltersButton } from "@/components/search/FiltersModal";
+import { SectionUnavailable } from "@/components/explore/StatusMessage";
+import { CategoryBar, SectionTabs } from "@/components/search/CategoryBar";
 import { SearchBar } from "@/components/search/SearchBar";
-import { isSearchMode, parseExploreQuery, toUrlParams } from "@/lib/explore-query";
+import { activeSection, exploreHref, isSearchMode, parseExploreQuery, toUrlParams } from "@/lib/explore-query";
 
 import styles from "./page.module.css";
 
@@ -23,6 +23,7 @@ async function Explore({ searchParams }: Pick<PageProps<"/">, "searchParams">) {
   const query = parseExploreQuery(await searchParams);
   const key = toUrlParams(query).toString();
   const searching = isSearchMode(query);
+  const section = searching ? "homes" : activeSection(query);
 
   return (
     <>
@@ -33,16 +34,27 @@ async function Explore({ searchParams }: Pick<PageProps<"/">, "searchParams">) {
           <SearchBar key={key} query={query} collapse="always" />
         </SiteHeader>
       ) : (
-        // Home and category browsing: category tabs on top, large search bar below that folds
-        // into the compact pill on scroll.
-        <SiteHeader variant="home" tabs={<CategoryTabs query={query} />} aside={<FiltersButton query={query} />}>
+        // Home: All / Homes / Experiences / Services tabs on top, large search bar below that
+        // folds into the compact pill on scroll.
+        <SiteHeader variant="home" tabs={<SectionTabs query={query} />}>
           <SearchBar key={key} query={query} collapse="scroll" placement="below" />
         </SiteHeader>
       )}
-      <main className={`${styles.main} ${searching ? "" : styles.homeMain}`}>
-        <Suspense key={key} fallback={<ListingGridSkeleton />}>
-          <ExploreResults query={query} />
-        </Suspense>
+      <main className={`${styles.main} ${searching ? "" : section === "homes" ? styles.homesMain : styles.homeMain}`}>
+        {section === "experiences" || section === "services" ? (
+          <SectionUnavailable
+            label={section === "experiences" ? "Experiences" : "Services"}
+            homesHref={exploreHref(query, { section: "homes", page: 1 })}
+          />
+        ) : (
+          <>
+            {/* Homes browsing keeps the property categories (Beachfront, Cabins, …). */}
+            {!searching && section === "homes" && <CategoryBar query={query} inline />}
+            <Suspense key={key} fallback={<ListingGridSkeleton />}>
+              <ExploreResults query={query} />
+            </Suspense>
+          </>
+        )}
       </main>
     </>
   );

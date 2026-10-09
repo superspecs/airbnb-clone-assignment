@@ -1,14 +1,16 @@
 import { ListingCarousel, ListingGrid, ListingsWithMap } from "@/components/listing/ListingGrid";
+import { CATEGORIES } from "@/lib/constants";
 import { getWishlist } from "@/lib/api/account";
 import { errorMessage } from "@/lib/api/client";
 import { getAllListings, searchListings } from "@/lib/api/listings";
-import { type ExploreQuery, activeFilterCount, exploreHref, isSearchMode } from "@/lib/explore-query";
-import { formatPrice, pluralize, shortDate } from "@/lib/format";
+import { type ExploreQuery, activeSection, exploreHref, isSearchMode } from "@/lib/explore-query";
+import { formatPrice, pluralize, PROPERTY_LABELS, shortDate } from "@/lib/format";
 import { getCurrentUserId } from "@/lib/session";
 import { nightsBetween } from "@/lib/stay";
 import type { ListingCard } from "@/lib/types/listing";
 
 import styles from "./ExploreResults.module.css";
+import { Inspiration, type InspirationGroup } from "./Inspiration";
 import { Pagination } from "./Pagination";
 import { EmptyResults, ResultsError } from "./StatusMessage";
 
@@ -96,6 +98,9 @@ function homeSections(items: ListingCard[]): HomeSection[] {
     });
   }
 
+  // Rows that fill the width lead; a short destination row would leave the top half-empty.
+  sections.sort((a, b) => Number(b.listings.length >= 7) - Number(a.listings.length >= 7));
+
   sections.push({
     id: "section-all",
     title: "All stays",
@@ -103,6 +108,33 @@ function homeSections(items: ListingCard[]): HomeSection[] {
     listings: items,
   });
   return sections;
+}
+
+/** Destination links per tab: every city with homes, then the cities in each category. */
+function inspirationGroups(items: ListingCard[]): InspirationGroup[] {
+  const cityLinks = (list: ListingCard[]) => {
+    const byCity = new Map<string, ListingCard[]>();
+    for (const item of list) byCity.set(item.city, [...(byCity.get(item.city) ?? []), item]);
+    return [...byCity.entries()]
+      .sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0]))
+      .map(([city, homes]) => {
+        // Most common property type in that city: "Villa rentals", "Cabin rentals", …
+        const counts = new Map<string, number>();
+        for (const h of homes) counts.set(h.property_type, (counts.get(h.property_type) ?? 0) + 1);
+        const type = [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0];
+        return {
+          name: city,
+          detail: `${PROPERTY_LABELS[type] ?? "Home"} rentals`,
+          href: exploreHref({ propertyTypes: [], amenities: [], page: 1 }, { location: city }),
+        };
+      });
+  };
+  return [
+    { label: "Popular", items: cityLinks(items) },
+    ...CATEGORIES.map((c) => ({ label: c.label, items: cityLinks(items.filter((i) => i.category === c.value)) })).filter(
+      (g) => g.items.length > 0,
+    ),
+  ];
 }
 
 /** Plain homepage (no search, category, filters or page): recommendation carousels. */
@@ -119,12 +151,13 @@ async function HomeOverview({ savedIds }: { savedIds: number[] }) {
       {homeSections(result.data.items).map((section, i) => (
         <ListingCarousel key={section.id} {...section} savedIds={savedIds} eager={i === 0} />
       ))}
+      <Inspiration groups={inspirationGroups(result.data.items)} />
     </div>
   );
 }
 
 export async function ExploreResults({ query }: { query: ExploreQuery }) {
-  const isOverview = !isSearchMode(query) && !query.category && activeFilterCount(query) === 0 && query.page === 1;
+  const isOverview = !isSearchMode(query) && activeSection(query) === "all";
   if (isOverview) {
     const userId = await getCurrentUserId();
     const savedIds = await getWishlist(userId).then((w) => w.listing_ids, () => [] as number[]);

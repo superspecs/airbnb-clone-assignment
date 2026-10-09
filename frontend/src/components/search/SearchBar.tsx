@@ -197,6 +197,7 @@ export function SearchBar({ query, collapse = "never", placement = "inline" }: S
         checkIn: checkIn ?? undefined,
         checkOut: checkOut ?? undefined,
         guests: guests || undefined,
+        section: undefined, // results are always homes
         page: 1,
       }),
     );

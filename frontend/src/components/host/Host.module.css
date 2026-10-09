@@ -145,3 +145,42 @@
 .hostChoice:hover:not(:disabled) {
   border-color: var(--color-dark);
 }
+
+.current {
+  background: #e8f0fe;
+  color: #1a4fa0;
+}
+
+/* Reservation status tabs on the host dashboard. */
+.tabs {
+  display: flex;
+  gap: 28px;
+  margin: 0 0 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tab {
+  position: relative;
+  padding: 0 0 12px;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tab:hover {
+  color: var(--color-text);
+}
+
+.tabActive {
+  color: var(--color-text);
+}
+
+.tabActive::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--color-dark);
+}

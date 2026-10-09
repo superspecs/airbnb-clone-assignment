@@ -5,6 +5,10 @@ import type { Category, PropertyType, RoomType } from "@/lib/types/listing";
  * Explore state lives in the URL. Prices in the URL are whole rupees for readability;
  * they are converted to paise only when calling the API.
  */
+/** Top-level homepage sections (All is the default overview, so it has no value). */
+export const SECTIONS = ["homes", "experiences", "services"] as const;
+export type Section = (typeof SECTIONS)[number];
+
 export interface ExploreQuery {
   location?: string;
   checkIn?: string; // YYYY-MM-DD
@@ -17,6 +21,7 @@ export interface ExploreQuery {
   category?: Category;
   amenities: string[];
   minBedrooms?: number;
+  section?: Section;
   page: number;
 }
 
@@ -56,6 +61,7 @@ export function parseExploreQuery(raw: RawParams): ExploreQuery {
     category: oneOf(first(raw.category), CATEGORIES),
     amenities: [...new Set(all(raw.amenities).filter((code) => knownAmenities.has(code)))],
     minBedrooms: nonNegativeInt(first(raw.min_bedrooms)),
+    section: SECTIONS.find((s) => s === first(raw.section)),
     page: Math.max(1, nonNegativeInt(first(raw.page)) ?? 1),
   };
 }
@@ -77,6 +83,7 @@ export function toUrlParams(query: ExploreQuery): URLSearchParams {
   set("category", query.category);
   query.amenities.forEach((a) => params.append("amenities", a));
   set("min_bedrooms", query.minBedrooms);
+  set("section", query.section);
   if (query.page > 1) set("page", query.page);
   return params;
 }
@@ -89,6 +96,7 @@ export function exploreHref(query: ExploreQuery, overrides: Partial<ExploreQuery
 /** Search params for GET /api/v1/listings (paise prices, fixed page size). */
 export function toApiParams(query: ExploreQuery): URLSearchParams {
   const params = toUrlParams({ ...query, page: 1 });
+  params.delete("section"); // UI-only
   if (query.minPrice !== undefined) params.set("min_price", String(query.minPrice * 100));
   if (query.maxPrice !== undefined) params.set("max_price", String(query.maxPrice * 100));
   params.set("page", String(query.page));
@@ -110,4 +118,11 @@ export function activeFilterCount(query: ExploreQuery): number {
 /** A destination or dates turn Explore into the search-results layout (list + map). */
 export function isSearchMode(query: ExploreQuery): boolean {
   return Boolean(query.location || (query.checkIn && query.checkOut));
+}
+
+/** Which homepage tab is active. Category, filters or paging mean the user is browsing homes. */
+export function activeSection(query: ExploreQuery): Section | "all" {
+  if (query.section) return query.section;
+  if (query.category || activeFilterCount(query) > 0 || query.page > 1) return "homes";
+  return "all";
 }

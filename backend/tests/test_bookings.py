@@ -9,7 +9,7 @@ from app.bookings.schemas import BookingCreate
 from app.core.errors import AppError
 from app.db import SessionLocal
 from app.models import Booking, BookingStatus, User
-from tests.conftest import GUEST_PRIYA, GUEST_SANA, HOST_LEELA, as_user, day
+from tests.conftest import GUEST_PRIYA, GUEST_SANA, HOST_LEELA, HOST_VIKRAM, as_user, day
 
 
 def quote(client, listing_id, check_in, check_out, guests=2, headers=None):
@@ -127,6 +127,18 @@ def test_cancel_frees_dates(client):
     res = client.post(f"/api/v1/bookings/{booking_id}/cancel", headers=as_user(GUEST_PRIYA))
     assert res.status_code == 200 and res.json()["status"] == "cancelled"
     assert book(client, GUEST_SANA, 2, day(50), day(52)).status_code == 201
+
+
+def test_host_can_cancel_upcoming_booking_on_own_listing(client):
+    booking_id = book(client, GUEST_PRIYA, 2, day(70), day(73)).json()["id"]
+    # Another host can't even see it; the listing's host (Vikram owns listing 2) can cancel.
+    assert client.post(f"/api/v1/bookings/{booking_id}/cancel", headers=as_user(HOST_LEELA)).status_code == 404
+    res = client.post(f"/api/v1/bookings/{booking_id}/cancel", headers=as_user(HOST_VIKRAM))
+    assert res.status_code == 200 and res.json()["status"] == "cancelled"
+    # Dates are free again, and a second cancel is rejected.
+    assert book(client, GUEST_SANA, 2, day(70), day(73)).status_code == 201
+    again = client.post(f"/api/v1/bookings/{booking_id}/cancel", headers=as_user(HOST_VIKRAM))
+    assert again.status_code == 409 and again.json()["error"]["code"] == "ALREADY_CANCELLED"
 
 
 def test_database_trigger_rejects_overlap(client):

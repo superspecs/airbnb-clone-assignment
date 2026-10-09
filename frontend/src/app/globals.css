@@ -29,6 +29,8 @@
   --home-search-height: 104px;
   /* Two-column page layouts (listing, booking, trip): flexible gap and side column. */
   --column-gap: clamp(40px, 6vw, 96px);
+  /* Explore pages stop widening here (very wide screens), like the reference. */
+  --page-max: 1824px;
   --gallery-row: clamp(170px, 18vw, 238px);
 
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -41,6 +43,12 @@
 }
 
 @media (min-width: 1128px) {
+  :root {
+    --page-gutter: 32px;
+  }
+}
+
+@media (min-width: 1440px) {
   :root {
     --page-gutter: 48px;
   }

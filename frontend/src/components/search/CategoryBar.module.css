@@ -44,70 +44,103 @@
   border-bottom-color: var(--color-dark);
 }
 
-/* Homepage top-row tabs. */
-.tabs {
+/* Homepage top-row tabs (reference at 1440: 14px/500 labels, ~32px between controls, icon art
+   ~30–42px wide, 3px dark underline 6px below the control). */
+.sections {
   display: flex;
   flex: none;
-  align-items: stretch;
-  gap: clamp(14px, 1.6vw, 26px);
+  align-items: center;
   height: 64px;
+  /* Asymmetric so the group's visual centre equals the reference's (and the underline and
+     hover zoom stay inside the scroller). */
+  padding: 0 14px 0 6px;
 }
 
-.tab {
+.section {
   position: relative;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 0 2px;
-  color: var(--color-text-muted);
-  font-size: 13px;
+  gap: 8px;
+  height: 44px;
+  margin-left: var(--tab-before);
+  border-radius: 8px;
+  color: #6a6a6a;
+  font-size: 14px;
   font-weight: 500;
+  line-height: 18px;
   white-space: nowrap;
-  transition: color 0.15s;
+  transition: color 0.2s ease;
 }
 
-.tab svg {
-  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+/* Fixed-height slot, as wide as the art: icons of different shapes centre on one line and the
+   label always sits 10px after the artwork; nothing moves when the selection changes. */
+.sectionIcon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--tab-slot);
+  height: 44px;
+  transform: translateY(var(--tab-dy));
 }
 
-.tab::after {
+.sectionIcon img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.section::after {
   content: "";
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  left: var(--tab-underline);
+  right: -4px;
+  top: calc(100% + 4px);
   height: 3px;
   border-radius: 2px;
-  background: transparent;
-  transition: background-color 0.15s;
-}
-
-.tab:hover {
-  color: var(--color-text);
-}
-
-.tab:hover svg {
-  transform: scale(1.08);
-}
-
-.tab:hover::after {
-  background: var(--color-border);
-}
-
-.tabActive,
-.tabActive:hover {
-  color: var(--color-text);
-}
-
-.tabActive::after,
-.tabActive:hover::after {
   background: var(--color-dark);
+  opacity: 0;
+  transform: scaleX(0.6);
+  transition:
+    opacity 0.2s ease,
+    transform 0.25s cubic-bezier(0.2, 0, 0, 1);
 }
 
-.tab:focus-visible {
+.section:hover {
+  color: var(--color-text);
+}
+
+.section:hover .sectionIcon img {
+  transform: scale(1.1);
+}
+
+.sectionActive,
+.sectionActive:hover {
+  color: var(--color-text);
+}
+
+.sectionActive::after {
+  opacity: 1;
+  transform: none;
+}
+
+.section:focus-visible {
   outline: 2px solid var(--color-dark);
-  outline-offset: 2px;
-  border-radius: 4px;
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section,
+  .section::after,
+  .sectionIcon img {
+    transition: none;
+  }
+}
+
+/* Homes view: the existing category row sits above the listing grid. */
+.inline {
+  padding-left: 0;
+  padding-right: 0;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--color-border);
 }

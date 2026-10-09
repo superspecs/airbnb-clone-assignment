@@ -9,6 +9,8 @@
 
 .inner {
   display: grid;
+  max-width: calc(var(--page-max) + 2 * var(--page-gutter));
+  margin: 0 auto;
   grid-template-columns: 1fr minmax(auto, 860px) 1fr;
   gap: 24px;
   align-items: center;
@@ -142,7 +144,9 @@
 .searchRow {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(104px, 1fr) minmax(0, 850px) minmax(104px, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 850px) minmax(0, 1fr);
+  max-width: calc(var(--page-max) + 2 * var(--page-gutter));
+  margin: 0 auto;
   column-gap: 16px;
   align-items: start;
   height: var(--home-search-height);

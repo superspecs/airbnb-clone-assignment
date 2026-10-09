@@ -1,7 +1,14 @@
 .main {
+  max-width: calc(var(--page-max) + 2 * var(--page-gutter));
+  margin: 0 auto;
   padding: 24px var(--page-gutter) 64px;
 }
 
 .homeMain {
   padding-top: 56px;
+}
+
+/* Homes view: the category row sits close under the header. */
+.homesMain {
+  padding-top: 16px;
 }

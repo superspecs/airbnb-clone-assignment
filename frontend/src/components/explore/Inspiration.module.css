@@ -1,0 +1,114 @@
+/* Reference: grey band, 22px/500 heading, 14px/500 tabs with a dark underline, six columns of
+   two-line links (14px/500 name, 14px grey detail), 8px column gap and 24px row gap. */
+.band {
+  margin-top: 64px;
+  padding: 32px 0 48px;
+  /* Full-bleed grey without causing horizontal scroll. */
+  background: var(--color-surface-muted);
+  box-shadow: 0 0 0 100vmax var(--color-surface-muted);
+  clip-path: inset(0 -100vmax);
+}
+
+.title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 26px;
+}
+
+.tabs {
+  display: flex;
+  gap: 32px;
+  margin: 16px 0 24px;
+  border-bottom: 1px solid var(--color-border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tab {
+  position: relative;
+  flex: none;
+  padding: 0 0 14px;
+  border: 0;
+  background: none;
+  color: #6a6a6a;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  transition: color 0.15s;
+}
+
+.tab::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: transparent;
+  transition: background-color 0.15s;
+}
+
+.tab:hover {
+  color: var(--color-text);
+}
+
+.tab[aria-selected="true"] {
+  color: var(--color-text);
+}
+
+.tab[aria-selected="true"]::after {
+  background: var(--color-dark);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 24px 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (max-width: 1127px) {
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.link {
+  display: grid;
+  font-size: 14px;
+  line-height: 18px;
+}
+
+.name {
+  overflow: hidden;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detail {
+  overflow: hidden;
+  color: #6a6a6a;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.link:hover .name {
+  text-decoration: underline;
+}
+
+.more {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 36px;
+  text-decoration: underline;
+}

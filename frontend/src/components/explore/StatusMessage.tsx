@@ -37,3 +37,16 @@ export function ResultsError({ message, title = "We couldn't load stays" }: { me
     </div>
   );
 }
+
+/** Experiences and Services aren't part of this demo: say so plainly and point back to homes. */
+export function SectionUnavailable({ label, homesHref }: { label: string; homesHref: string }) {
+  return (
+    <div className={styles.box} role="status">
+      <h1 className={styles.title}>{label} aren&apos;t available yet</h1>
+      <p className={styles.text}>This demo covers places to stay. You can still search and book homes.</p>
+      <Link href={homesHref} className={styles.action}>
+        Browse homes
+      </Link>
+    </div>
+  );
+}

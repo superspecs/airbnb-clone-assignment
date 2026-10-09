@@ -5,10 +5,11 @@ import { Suspense } from "react";
 
 import { ResultsError } from "@/components/explore/StatusMessage";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { ComingSoonButton } from "@/components/listing-detail/DetailActions";
 import { PriceBreakdown } from "@/components/listing-detail/PriceBreakdown";
 import { getBooking } from "@/lib/api/bookings";
 import { ApiError, errorMessage } from "@/lib/api/client";
-import { longDate, pluralize } from "@/lib/format";
+import { dateRange, formatPrice, longDate, pluralize } from "@/lib/format";
 import { isOptimizableImage } from "@/lib/images";
 import { getCurrentUserId } from "@/lib/session";
 import { marketplaceToday } from "@/lib/stay";
@@ -45,8 +46,13 @@ async function TripDetail({ params }: Pick<PageProps<"/trips/[bookingId]">, "par
   const { booking } = result;
   const { listing } = booking;
   const today = marketplaceToday();
-  const cancellable = booking.status === "confirmed" && booking.check_in > today && booking.guest.id === userId;
+  // The API only returns a booking to its guest or the listing's host.
+  const asHost = booking.guest.id !== userId;
+  const cancellable = booking.status === "confirmed" && booking.check_in > today;
   const upcoming = booking.status === "confirmed" && booking.check_out > today;
+  const { price } = booking;
+  // The guest pays the service fee; the host is paid the stay subtotal plus the cleaning fee.
+  const payout = price.subtotal + price.cleaning_fee;
 
   return (
     <div className={styles.layout}>
@@ -55,9 +61,11 @@ async function TripDetail({ params }: Pick<PageProps<"/trips/[bookingId]">, "par
         <h1 className={accountStyles.title}>
           {booking.status === "cancelled"
             ? "This reservation was cancelled"
-            : upcoming
-              ? "Your reservation is confirmed"
-              : "Completed stay"}
+            : asHost
+              ? `${booking.guest.name.split(" ")[0]}'s reservation`
+              : upcoming
+                ? "Your reservation is confirmed"
+                : "Completed stay"}
         </h1>
         <p className={accountStyles.subtitle}>
           {listing.title} · {listing.city}, {listing.state}
@@ -75,6 +83,14 @@ async function TripDetail({ params }: Pick<PageProps<"/trips/[bookingId]">, "par
           <div>
             <dt>Guests</dt>
             <dd>{pluralize(booking.guests, "guest")}</dd>
+          </div>
+          <div>
+            <dt>Nights</dt>
+            <dd>{price.nights}</dd>
+          </div>
+          <div>
+            <dt>Booked on</dt>
+            <dd>{longDate(booking.created_at.slice(0, 10))}</dd>
           </div>
           <div>
             <dt>Booked by</dt>
@@ -98,10 +114,26 @@ async function TripDetail({ params }: Pick<PageProps<"/trips/[bookingId]">, "par
           ) : (
             <span className={accountStyles.muted}>The host has removed this listing.</span>
           )}
-          <Link href="/trips" className={accountStyles.secondary}>
-            All trips
-          </Link>
-          {cancellable && <CancelTripButton bookingId={booking.id} />}
+          {asHost ? (
+            <>
+              <Link href="/host" className={accountStyles.secondary}>
+                Back to dashboard
+              </Link>
+              <ComingSoonButton label="Message guest" message="Messaging guests is coming soon." />
+            </>
+          ) : (
+            <Link href="/trips" className={accountStyles.secondary}>
+              All trips
+            </Link>
+          )}
+          {cancellable && (
+            <CancelTripButton
+              bookingId={booking.id}
+              refund={formatPrice(price.total, price.currency)}
+              dates={`${listing.title} · ${dateRange(booking.check_in, booking.check_out)}`}
+              asHost={asHost}
+            />
+          )}
         </div>
       </section>
 
@@ -118,8 +150,27 @@ async function TripDetail({ params }: Pick<PageProps<"/trips/[bookingId]">, "par
             />
           </div>
         )}
-        <h2 className={styles.summaryTitle}>Price details</h2>
-        <PriceBreakdown price={booking.price} />
+        <h2 className={styles.summaryTitle}>{asHost ? "Guest paid" : "Price details"}</h2>
+        <PriceBreakdown price={price} />
+        {asHost && (
+          <div className={styles.payout}>
+            <h2 className={styles.summaryTitle}>Your payout</h2>
+            <p className={styles.payoutRow}>
+              <span>
+                {formatPrice(price.nightly_price, price.currency)} × {pluralize(price.nights, "night")}
+              </span>
+              <span>{formatPrice(price.subtotal, price.currency)}</span>
+            </p>
+            <p className={styles.payoutRow}>
+              <span>Cleaning fee</span>
+              <span>{formatPrice(price.cleaning_fee, price.currency)}</span>
+            </p>
+            <p className={`${styles.payoutRow} ${styles.payoutTotal}`}>
+              <span>Total payout{booking.status === "cancelled" ? " (cancelled)" : ""}</span>
+              <span>{formatPrice(booking.status === "cancelled" ? 0 : payout, price.currency)}</span>
+            </p>
+          </div>
+        )}
       </aside>
     </div>
   );
