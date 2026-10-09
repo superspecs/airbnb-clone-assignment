@@ -42,3 +42,6 @@ skills-lock.json
 
 # Deployment CLIs
 .vercel/
+
+docs/custom_icons/
+interview.md

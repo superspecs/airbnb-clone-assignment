@@ -7,6 +7,8 @@ import { ResultsError } from "@/components/explore/StatusMessage";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { ComingSoonButton } from "@/components/listing-detail/DetailActions";
 import { PriceBreakdown } from "@/components/listing-detail/PriceBreakdown";
+import { ReviewForm } from "@/components/trips/ReviewForm";
+import { SubmittedReview } from "@/components/trips/SubmittedReview";
 import { getBooking } from "@/lib/api/bookings";
 import { ApiError, errorMessage } from "@/lib/api/client";
 import { dateRange, formatPrice, longDate, pluralize } from "@/lib/format";
@@ -22,7 +24,7 @@ export default function TripPage({ params }: PageProps<"/trips/[bookingId]">) {
   return (
     <>
       <SiteHeader />
-      <main className={accountStyles.main}>
+      <main id="main-content" tabIndex={-1} className={accountStyles.main}>
         <Suspense fallback={<p className={accountStyles.muted}>Loading reservation…</p>}>
           <TripDetail params={params} />
         </Suspense>
@@ -50,6 +52,8 @@ async function TripDetail({ params }: Pick<PageProps<"/trips/[bookingId]">, "par
   const asHost = booking.guest.id !== userId;
   const cancellable = booking.status === "confirmed" && booking.check_in > today;
   const upcoming = booking.status === "confirmed" && booking.check_out > today;
+  // Reviews open once the stay has ended (check-out day counts as ended).
+  const completed = booking.status === "confirmed" && booking.check_out <= today;
   const { price } = booking;
   // The guest pays the service fee; the host is paid the stay subtotal plus the cleaning fee.
   const payout = price.subtotal + price.cleaning_fee;
@@ -135,6 +139,22 @@ async function TripDetail({ params }: Pick<PageProps<"/trips/[bookingId]">, "par
             />
           )}
         </div>
+
+        {booking.review ? (
+          <SubmittedReview
+            review={booking.review}
+            title={asHost ? `${booking.guest.name.split(" ")[0]}'s review` : "Your review"}
+            listingHref={listing.is_active ? `/listings/${listing.id}#reviews` : undefined}
+          />
+        ) : (
+          completed &&
+          !asHost &&
+          (listing.is_active ? (
+            <ReviewForm bookingId={booking.id} listingTitle={listing.title} />
+          ) : (
+            <p className={accountStyles.muted}>This listing was removed, so the stay can&apos;t be reviewed.</p>
+          ))
+        )}
       </section>
 
       <aside className={styles.summary}>

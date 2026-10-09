@@ -15,6 +15,7 @@ from app.db import get_db
 from app.host.router import router as host_router
 from app.listings.router import router as listings_router
 from app.meta.router import router as meta_router
+from app.reviews.router import router as reviews_router
 from app.users.router import router as users_router
 from app.wishlists.router import router as wishlists_router
 
@@ -54,6 +55,7 @@ def health(db: Session = Depends(get_db)) -> HealthResponse:
 for feature_router in (
     listings_router,
     bookings_router,
+    reviews_router,
     wishlists_router,
     host_router,
     users_router,

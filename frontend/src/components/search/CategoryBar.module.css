@@ -64,7 +64,7 @@
   height: 44px;
   margin-left: var(--tab-before);
   border-radius: 8px;
-  color: #6a6a6a;
+  color: var(--color-text-muted);
   font-size: 14px;
   font-weight: 500;
   line-height: 18px;

@@ -28,4 +28,4 @@ class Review(Base):
 
     listing: Mapped[Listing] = relationship()
     author: Mapped[User] = relationship()
-    booking: Mapped[Booking | None] = relationship()
+    booking: Mapped[Booking | None] = relationship(back_populates="review")

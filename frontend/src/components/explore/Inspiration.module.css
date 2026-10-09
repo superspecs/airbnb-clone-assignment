@@ -31,7 +31,7 @@
   padding: 0 0 14px;
   border: 0;
   background: none;
-  color: #6a6a6a;
+  color: var(--color-text-muted);
   font-size: 14px;
   font-weight: 500;
   line-height: 18px;
@@ -91,7 +91,7 @@
 
 .detail {
   overflow: hidden;
-  color: #6a6a6a;
+  color: var(--color-text-muted);
   text-overflow: ellipsis;
   white-space: nowrap;
 }

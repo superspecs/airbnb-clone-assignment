@@ -103,6 +103,14 @@
   color: var(--color-text);
 }
 
+/* Long destinations are cut with an ellipsis so the pill keeps its size. */
+.pillPlace {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .pillIcon {
   color: var(--color-accent);
 }
@@ -155,7 +163,7 @@
 }
 
 .barActive .segment:hover:not(.active) {
-  background: #dddddd;
+  background: var(--color-border);
 }
 
 .segment {
@@ -251,7 +259,7 @@
   padding: 0 16px;
   border: 0;
   border-radius: var(--radius-pill);
-  background: var(--color-accent);
+  background: var(--color-accent-button);
   color: #fff;
   font-weight: 600;
 }
@@ -267,7 +275,7 @@
   padding: 28px 32px;
   border-radius: var(--radius-xl);
   background: var(--color-surface);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--shadow-panel);
 }
 
 .datesPanel {

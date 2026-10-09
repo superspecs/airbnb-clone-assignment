@@ -17,7 +17,7 @@
   padding: 14px 20px;
   border-radius: var(--radius-md);
   background: var(--color-dark);
-  color: #fff;
+  color: var(--color-on-dark);
   font-weight: 500;
   box-shadow: var(--shadow-card);
   animation: rise 0.2s ease-out;
@@ -28,11 +28,13 @@
 }
 
 .error {
-  background: var(--color-error);
+  background: var(--color-error-fill);
+  color: #fff;
 }
 
 .info {
-  background: #3d3d3d;
+  background: var(--color-toast-info);
+  color: #fff;
 }
 
 @keyframes rise {

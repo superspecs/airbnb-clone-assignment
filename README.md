@@ -1,7 +1,8 @@
 # Stays — an Airbnb-style booking marketplace
 
 A full-stack Airbnb clone: browse and search stays, check availability, book with a mocked
-checkout, manage trips and wishlists, and run listings as a host.
+checkout, manage trips and wishlists, review completed stays, and run listings as a host — in a
+light or dark theme.
 
 | | |
 |---|---|
@@ -26,6 +27,11 @@ checkout, manage trips and wishlists, and run listings as a host.
 5. **Host** — menu → switch to a host (e.g. Vikram Rao) → **Host dashboard** → create, edit or
    delete a listing; reservations have tabs (Upcoming, Currently hosting, Completed, Cancelled) →
    **View** shows the guest's price breakdown, your payout and a **Cancel** option.
+6. **Review a stay** — as the default guest (Priya Nair) open **Trips** → a past stay marked
+   **Leave a review** → pick 1–5 stars and write a comment → **Publish review**. The review
+   appears on the listing and counts toward its rating; the host sees it on the reservation.
+7. **Dark mode** — the moon/sun button in the header switches theme. The choice is remembered
+   (and follows the system setting until you pick one), with no flash of the wrong theme on load.
 
 ---
 
@@ -50,6 +56,8 @@ checkout, manage trips and wishlists, and run listings as a host.
 | Mocked: payments, messaging, ID verification | "Coming soon" / demo labels |
 | **Bonus:** interactive map with pins | `ListingGrid.tsx` (OpenStreetMap tiles) |
 | **Bonus:** Superhost badges, rating aggregation | listing cards, reviews summary |
+| **Bonus:** leave a review after a completed stay | `backend/app/reviews`, `components/trips/ReviewForm.tsx` |
+| **Bonus:** dark mode (header toggle, remembered, no flash) | `components/layout/ThemeToggle.tsx`, `lib/theme.ts`, `globals.css` |
 
 ---
 
@@ -73,12 +81,15 @@ flowchart LR
   a typed client per feature. Pages read data on the server; all writes go through Server
   Actions (`app/actions.ts`), so the browser never calls the API directly. Search state lives in
   the URL, so every view is linkable and the back button works.
-- **Backend** (`backend/app`): one folder per feature (`listings`, `bookings`, `host`,
+- **Backend** (`backend/app`): one folder per feature (`listings`, `bookings`, `reviews`, `host`,
   `wishlists`, `users`, `meta`), each with `router.py` (HTTP only), `schemas.py` (Pydantic
   request/response) and `service.py` (business rules). Errors share one shape:
   `{"error": {"code", "message", "details"}}`.
 - **Rules live on the server**: prices are always computed by the backend, and overlaps are
   blocked twice — inside a `BEGIN IMMEDIATE` transaction and by database triggers.
+- **Theming**: colours are CSS variables in `globals.css`, redefined under
+  `:root[data-theme="dark"]`. A tiny inline script in `app/layout.tsx` applies the saved theme
+  (browser `localStorage`) before the first paint; `ThemeToggle` switches it.
 
 ---
 
@@ -106,7 +117,7 @@ erDiagram
 | `listing_images` | Ordered photos; `UNIQUE(listing_id, position)`, position 0 = cover |
 | `amenities` / `listing_amenities` | Amenity catalogue + many-to-many link (composite PK) |
 | `bookings` | `check_in`, `check_out`, guests, status, **price snapshot** (nights, subtotal, fees, total); CHECK `check_out > check_in`; overlap triggers; index on `(listing_id, status, check_in, check_out)` |
-| `reviews` | Rating 1–5 + comment; optional unique link to a booking |
+| `reviews` | Rating 1–5 + comment; optional link to a booking, `UNIQUE(booking_id)` so a stay is reviewed at most once |
 | `wishlists` | `(user_id, listing_id)` composite PK, so saving is idempotent |
 
 **Booking rules:** a stay is `[check_in, check_out)` — check-out day is free for the next guest.
@@ -115,6 +126,12 @@ Two stays overlap when `a.check_in < b.check_out AND b.check_in < a.check_out` �
 own listing. Price = nightly × nights + cleaning fee + 12% service fee (demo); the host payout is
 nightly × nights + cleaning fee. The guest or the host can cancel before check-in (full simulated
 refund) and the dates free immediately. Money is stored as integer paise.
+
+**Review rules:** only the booking's guest can review, only a confirmed stay whose check-out
+date has passed (check-out day counts), once per booking, and not after the host removed the
+listing. Comments are 10–1,000 characters. Violations return `409` (`STAY_NOT_COMPLETED`,
+`BOOKING_CANCELLED`, `ALREADY_REVIEWED`, `LISTING_REMOVED`), `403 NOT_GUEST` for the host, or
+`404` for anyone else.
 
 ---
 
@@ -130,6 +147,7 @@ Signed-in routes take the mock header `X-Demo-User-Id: <id>`. Full schema at `/d
 | GET | `/listings/{id}/quote` | Validated price breakdown for dates + guests |
 | POST | `/bookings` | Create booking `{listing_id, check_in, check_out, guests}` |
 | GET / POST | `/bookings/{id}`, `/bookings/{id}/cancel` | View / cancel a booking (its guest or the listing's host, before check-in) |
+| POST | `/bookings/{id}/review` | Review a completed stay `{rating 1–5, comment}`: the booking's guest only, after check-out, once per booking (409 `ALREADY_REVIEWED` / `STAY_NOT_COMPLETED`) |
 | GET | `/me`, `/me/trips` | Current user and their trips |
 | GET / PUT / DELETE | `/me/wishlist[/{listing_id}]` | Wishlist |
 | GET / POST / PUT / DELETE | `/host/listings[/{id}]` | Host listing CRUD (owner only) |
@@ -156,12 +174,12 @@ npm run dev
 ```
 
 The database (`backend/data/app.db`) is created and seeded automatically on first start:
-**32 listings, 5 hosts, 8 guests, 22 amenities, ~180 reviews, 18 bookings**.
+**32 listings, 5 hosts, 8 guests, 22 amenities, ~180 reviews, 20 bookings** (two completed stays are left unreviewed so a review can be tried right away).
 
 | Task | Command |
 |---|---|
 | Reset demo data | `cd backend && python -m app.seed --reset` |
-| Backend tests (24) | `cd backend && pip install -r requirements-dev.txt && python -m pytest` |
+| Backend tests (32) | `cd backend && pip install -r requirements-dev.txt && python -m pytest` |
 | Frontend checks | `cd frontend && npm run lint && npx tsc --noEmit && npm run build` |
 
 Environment variables are optional locally; see `backend/.env.example` and
@@ -178,14 +196,18 @@ Environment variables are optional locally; see `backend/.env.example` and
 - **Photos** are image URLs (Unsplash); there is no file upload. The map uses free
   OpenStreetMap tiles. Prices are in INR.
 - Category tab icons (`frontend/public/icons`) are reference images supplied for visual matching.
+- **Theme preference** is stored per browser (`localStorage`), not per demo user.
 
 ## Deployment
 
-- **Frontend:** Vercel (root `frontend/`), redeploys on every push to `main`.
-- **Backend:** Render free tier via `render.yaml` (root `backend/`). The free tier has no
-  persistent disk, so the database resets to seed data after a restart or sleep.
+- **Frontend:** Vercel project `stays-demo` (root `frontend/`), deployed with the Vercel CLI
+  (`vercel deploy --prod`); it is not linked to Git, so pushes don't redeploy it.
+- **Backend:** Render free tier via `render.yaml` (root `backend/`), auto-deployed on every push
+  to `main`. The free tier has no persistent disk, so the database resets to seed data after a
+  deploy, restart or sleep.
 
 ## Known limitations
 
 - Demo data on the hosted backend is not permanent (free tier, see above).
-- Desktop-only layout; no review submission after a stay; search is ordered by listing id.
+- Desktop-only layout; search is ordered by listing id.
+- Reviews can't be edited or deleted once published; review dates display the UTC calendar day.

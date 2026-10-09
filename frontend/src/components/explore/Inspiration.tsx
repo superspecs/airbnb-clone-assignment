@@ -43,26 +43,28 @@ export function Inspiration({ groups }: { groups: InspirationGroup[] }) {
           </button>
         ))}
       </div>
-      <ul id="inspiration-panel" role="tabpanel" aria-labelledby={`inspiration-tab-${active}`} className={styles.grid}>
-        {items.map((item) => (
-          <li key={item.name}>
-            <Link href={item.href} className={styles.link}>
-              <span className={styles.name}>{item.name}</span>
-              <span className={styles.detail}>{item.detail}</span>
-            </Link>
-          </li>
-        ))}
-        {!expanded && group.items.length > COLLAPSED && (
-          <li>
-            <button type="button" className={styles.more} onClick={() => setExpanded(true)}>
-              Show more
-              <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
-                <path d="M5 9l7 7 7-7" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-          </li>
-        )}
-      </ul>
+      <div id="inspiration-panel" role="tabpanel" aria-labelledby={`inspiration-tab-${active}`}>
+        <ul className={styles.grid}>
+          {items.map((item) => (
+            <li key={item.name}>
+              <Link href={item.href} className={styles.link}>
+                <span className={styles.name}>{item.name}</span>
+                <span className={styles.detail}>{item.detail}</span>
+              </Link>
+            </li>
+          ))}
+          {!expanded && group.items.length > COLLAPSED && (
+            <li>
+              <button type="button" className={styles.more} onClick={() => setExpanded(true)}>
+                Show more
+                <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
+                  <path d="M5 9l7 7 7-7" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            </li>
+          )}
+        </ul>
+      </div>
     </section>
   );
 }

@@ -8,14 +8,15 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { setSaved } from "@/lib/api/account";
-import { cancelBooking, createBooking, getQuote, type StayRequest } from "@/lib/api/bookings";
-import { errorMessage } from "@/lib/api/client";
+import { cancelBooking, createBooking, getQuote, submitReview, type StayRequest } from "@/lib/api/bookings";
+import { ApiError, errorMessage } from "@/lib/api/client";
 import { createHostListing, deleteHostListing, updateHostListing } from "@/lib/api/host";
 import { DEMO_USER_COOKIE, getCurrentUserId } from "@/lib/session";
-import type { Quote } from "@/lib/types/booking";
+import type { Quote, ReviewInput } from "@/lib/types/booking";
 import type { ListingInput } from "@/lib/types/host";
 
-export type ActionResult<T = undefined> = { ok: true; data: T } | { ok: false; error: string };
+/** `code` is the API error code when there is one (e.g. DATES_UNAVAILABLE), for tailored UI. */
+export type ActionResult<T = undefined> = { ok: true; data: T } | { ok: false; error: string; code?: string };
 
 export async function switchDemoUser(userId: number): Promise<void> {
   if (!Number.isInteger(userId) || userId < 1) return;
@@ -40,7 +41,7 @@ export async function confirmBooking(listingId: number, stay: StayRequest): Prom
   try {
     bookingId = (await createBooking(listingId, stay, await getCurrentUserId())).id;
   } catch (error) {
-    return { ok: false, error: errorMessage(error) };
+    return { ok: false, error: errorMessage(error), code: error instanceof ApiError ? error.code : undefined };
   }
   redirect(`/trips/${bookingId}?toast=booked`);
 }
@@ -50,6 +51,16 @@ export async function cancelTrip(bookingId: number): Promise<ActionResult> {
     await cancelBooking(bookingId, await getCurrentUserId());
   } catch (error) {
     return { ok: false, error: errorMessage(error) };
+  }
+  refresh();
+  return { ok: true, data: undefined };
+}
+
+export async function leaveReview(bookingId: number, review: ReviewInput): Promise<ActionResult> {
+  try {
+    await submitReview(bookingId, review, await getCurrentUserId());
+  } catch (error) {
+    return { ok: false, error: errorMessage(error), code: error instanceof ApiError ? error.code : undefined };
   }
   refresh();
   return { ok: true, data: undefined };

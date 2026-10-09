@@ -54,8 +54,8 @@
   right: 16px;
   padding: 4px 10px;
   border-radius: var(--radius-pill);
-  background: #e7f4ec;
-  color: #1d6b3a;
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
   font-size: 12px;
   font-weight: 600;
 }
@@ -63,4 +63,9 @@
 .cancelled {
   background: var(--color-surface-hover);
   color: var(--color-text-muted);
+}
+
+.reviewPrompt {
+  font-weight: 600;
+  text-decoration: underline;
 }

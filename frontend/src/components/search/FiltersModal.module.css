@@ -25,7 +25,7 @@
   padding: 0 6px;
   border-radius: var(--radius-pill);
   background: var(--color-dark);
-  color: #fff;
+  color: var(--color-on-dark);
   font-size: 11px;
 }
 
@@ -37,6 +37,7 @@
   border: 0;
   border-radius: var(--radius-xl);
   background: var(--color-surface);
+  color: var(--color-text);
   box-shadow: var(--shadow-card);
 }
 
@@ -245,7 +246,7 @@
   border: 0;
   border-radius: var(--radius-md);
   background: var(--color-dark);
-  color: #fff;
+  color: var(--color-on-dark);
   font-weight: 600;
 }
 

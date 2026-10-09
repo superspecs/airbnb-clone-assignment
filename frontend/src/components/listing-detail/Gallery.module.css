@@ -90,6 +90,7 @@
   padding: 0;
   border: 0;
   background: var(--color-surface);
+  color: var(--color-text);
 }
 
 .tour::backdrop {

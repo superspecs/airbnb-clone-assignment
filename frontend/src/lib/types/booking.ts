@@ -1,5 +1,7 @@
 // Mirrors backend/app/bookings/schemas.py. Money values are integer paise.
 
+import type { Review } from "@/lib/types/listing";
+
 export interface Price {
   nights: number;
   nightly_price: number;
@@ -36,4 +38,16 @@ export interface Booking {
     is_active: boolean;
   };
   guest: { id: number; name: string };
+  /** The guest's review of this stay, once written. */
+  review: Review | null;
 }
+
+/** Mirrors backend ReviewCreate. */
+export interface ReviewInput {
+  rating: number;
+  comment: string;
+}
+
+/** Comment length limits enforced by the API. */
+export const REVIEW_COMMENT_MIN = 10;
+export const REVIEW_COMMENT_MAX = 1000;

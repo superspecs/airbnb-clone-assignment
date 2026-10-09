@@ -1,5 +1,6 @@
 import { apiGet, apiRequest } from "@/lib/api/client";
-import type { Booking, Quote } from "@/lib/types/booking";
+import type { Booking, Quote, ReviewInput } from "@/lib/types/booking";
+import type { Review } from "@/lib/types/listing";
 
 export interface StayRequest {
   checkIn: string;
@@ -33,4 +34,8 @@ export function getBooking(bookingId: number, userId: number): Promise<Booking> 
 
 export function cancelBooking(bookingId: number, userId: number): Promise<Booking> {
   return apiRequest<Booking>("POST", `/bookings/${bookingId}/cancel`, { userId });
+}
+
+export function submitReview(bookingId: number, review: ReviewInput, userId: number): Promise<Review> {
+  return apiRequest<Review>("POST", `/bookings/${bookingId}/review`, { userId, body: review });
 }

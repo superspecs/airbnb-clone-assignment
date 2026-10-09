@@ -43,6 +43,11 @@ PAST_BOOKINGS: list[tuple[int, int, int, int]] = [
     (13, 7, -33, 2),
     (21, 0, -50, 3),
 ]
+# Completed stays with no review yet, so the demo guests (Priya, Sana) can leave one.
+UNREVIEWED_PAST_BOOKINGS: list[tuple[int, int, int, int]] = [
+    (9, 0, -12, 2),
+    (15, 1, -20, 3),
+]
 
 
 def _photo_url(photo_id: str) -> str:
@@ -177,6 +182,9 @@ def load_seed_data(db: Session) -> None:
                 created_at=_midday(offset + nights + 2),
             )
         )
+
+    for listing_i, guest_i, offset, nights in UNREVIEWED_PAST_BOOKINGS:
+        db.add(_make_booking(listings[listing_i], guests[guest_i], offset, nights, BookingStatus.CONFIRMED))
 
     # Historic reviews (not tied to a seeded booking) so every listing has a rating.
     for index, listing in enumerate(listings):

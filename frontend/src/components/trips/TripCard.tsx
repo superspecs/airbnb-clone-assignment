@@ -7,7 +7,8 @@ import type { Booking } from "@/lib/types/booking";
 
 import styles from "./TripCard.module.css";
 
-export function TripCard({ booking }: { booking: Booking }) {
+/** `past`: a completed stay, which shows whether it has been reviewed yet. */
+export function TripCard({ booking, past = false }: { booking: Booking; past?: boolean }) {
   const { listing } = booking;
   return (
     <Link href={`/trips/${booking.id}`} className={styles.card}>
@@ -32,6 +33,15 @@ export function TripCard({ booking }: { booking: Booking }) {
           {dateRange(booking.check_in, booking.check_out)} · {pluralize(booking.guests, "guest")}
         </p>
         <p className={styles.total}>{formatPrice(booking.price.total, booking.price.currency)} total</p>
+        {past &&
+          (booking.review ? (
+            <p className={styles.muted}>
+              You rated it <span aria-hidden="true">★</span> {booking.review.rating}
+              <span className="visually-hidden"> out of 5</span>
+            </p>
+          ) : (
+            booking.listing.is_active && <p className={styles.reviewPrompt}>Leave a review</p>
+          ))}
       </div>
       <span className={`${styles.status} ${booking.status === "cancelled" ? styles.cancelled : ""}`}>
         {booking.status === "cancelled" ? "Cancelled" : "Confirmed"}

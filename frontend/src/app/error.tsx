@@ -7,7 +7,7 @@ import styles from "./status.module.css";
 /** Route-level error boundary for unexpected failures (API errors are handled inline). */
 export default function RouteError({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
-    <main className={styles.main}>
+    <main id="main-content" tabIndex={-1} className={styles.main}>
       <p className={styles.code}>Something went wrong</p>
       <h1 className={styles.title}>This page didn&apos;t load</h1>
       <p className={styles.text}>

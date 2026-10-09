@@ -85,7 +85,7 @@
   padding: 24px;
   border-radius: var(--radius-lg);
   background: var(--color-surface);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.22);
+  box-shadow: var(--shadow-popover);
 }
 
 .calendarPopover {
@@ -157,7 +157,7 @@
   padding: 14px;
   border: 0;
   border-radius: var(--radius-sm);
-  background: var(--color-accent);
+  background: var(--color-accent-button);
   color: #fff;
   font-size: 16px;
   font-weight: 600;

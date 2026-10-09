@@ -8,6 +8,7 @@ import { PriceBreakdown } from "@/components/listing-detail/PriceBreakdown";
 import { getDemoUsers } from "@/lib/api/account";
 import { getQuote } from "@/lib/api/bookings";
 import { ApiError, errorMessage } from "@/lib/api/client";
+import { MAX_GUESTS } from "@/lib/constants";
 import { getListing } from "@/lib/api/listings";
 import { dateRange, pluralize } from "@/lib/format";
 import { isOptimizableImage } from "@/lib/images";
@@ -21,7 +22,7 @@ export default function BookPage({ params, searchParams }: PageProps<"/listings/
   return (
     <>
       <SiteHeader />
-      <main className={styles.main}>
+      <main id="main-content" tabIndex={-1} className={styles.main}>
         <Suspense fallback={<p className={styles.muted}>Preparing your booking…</p>}>
           <Checkout params={params} searchParams={searchParams} />
         </Suspense>
@@ -42,6 +43,9 @@ async function Checkout({ params, searchParams }: PageProps<"/listings/[id]/book
 
   if (!isIsoDate(checkIn) || !isIsoDate(checkOut) || !Number.isInteger(guests) || guests < 1) {
     return <Problem message="Choose your dates and guests on the listing page first." backHref={backHref} />;
+  }
+  if (guests > MAX_GUESTS) {
+    return <Problem message={`Bookings are limited to ${MAX_GUESTS} guests. Choose fewer guests on the listing page.`} backHref={backHref} />;
   }
   const stay = { checkIn, checkOut, guests };
   const userId = await getCurrentUserId();

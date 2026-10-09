@@ -14,7 +14,7 @@ export default function WishlistsPage() {
   return (
     <>
       <SiteHeader />
-      <main className={`${styles.main} ${styles.wide}`}>
+      <main id="main-content" tabIndex={-1} className={`${styles.main} ${styles.wide}`}>
         <div className={styles.pageHeader}>
           <div>
             <h1 className={styles.title}>Wishlists</h1>

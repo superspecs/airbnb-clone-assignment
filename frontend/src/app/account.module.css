@@ -76,11 +76,11 @@
 .primary {
   border: 0;
   background: var(--color-dark);
-  color: #fff;
+  color: var(--color-on-dark);
 }
 
 .primary:hover {
-  background: #000;
+  background: var(--color-dark-hover);
 }
 
 .secondary {

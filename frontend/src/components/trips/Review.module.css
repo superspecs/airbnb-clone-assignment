@@ -1,0 +1,138 @@
+.card {
+  margin-top: 40px;
+  padding: 24px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.heading {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.muted {
+  margin: 4px 0 0;
+  color: var(--color-text-muted);
+}
+
+.fieldset {
+  margin: 20px 0 16px;
+  padding: 0;
+  border: 0;
+}
+
+.label {
+  display: block;
+  margin-bottom: 8px;
+  padding: 0;
+  font-weight: 600;
+}
+
+.stars {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.star {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 30px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* The radio is visually hidden, so show its keyboard focus on the star. */
+.star:has(input:focus-visible) {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 2px;
+}
+
+.starOn {
+  color: var(--color-dark);
+}
+
+.starOff {
+  color: var(--color-border-strong);
+}
+
+.ratingText {
+  margin-left: 10px;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.textarea {
+  display: block;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.textarea:focus {
+  border-color: var(--color-dark);
+  outline: 2px solid var(--color-dark);
+  outline-offset: -1px;
+}
+
+.count {
+  margin: 6px 0 0;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  text-align: right;
+}
+
+.error {
+  margin: 12px 0 0;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--color-error-bg);
+  color: var(--color-error);
+}
+
+.submit {
+  margin-top: 16px;
+  padding: 12px 24px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-dark);
+  color: var(--color-on-dark);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.submit:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.published {
+  margin: 12px 0 0;
+  font-size: 18px;
+}
+
+.published .muted {
+  font-size: 14px;
+}
+
+.comment {
+  margin: 12px 0 0;
+  white-space: pre-line;
+}
+
+.link {
+  display: inline-block;
+  margin-top: 16px;
+  font-weight: 600;
+  text-decoration: underline;
+}

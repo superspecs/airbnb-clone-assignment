@@ -3,6 +3,7 @@
 import { useRef, useTransition } from "react";
 
 import { cancelTrip } from "@/app/actions";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { toast } from "@/components/ui/Toast";
 
 import styles from "./page.module.css";
@@ -20,10 +21,8 @@ interface CancelTripButtonProps {
 export function CancelTripButton({ bookingId, refund, dates, asHost = false }: CancelTripButtonProps) {
   const [pending, startTransition] = useTransition();
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const close = () => dialogRef.current?.close();
 
-  function confirm() {
-    close();
+  function cancel() {
     startTransition(async () => {
       const result = await cancelTrip(bookingId);
       toast(result.ok ? "Reservation cancelled. The dates are available again." : result.error, result.ok ? "success" : "error");
@@ -35,16 +34,15 @@ export function CancelTripButton({ bookingId, refund, dates, asHost = false }: C
       <button type="button" className={styles.cancel} onClick={() => dialogRef.current?.showModal()} disabled={pending}>
         {pending ? "Cancelling…" : "Cancel reservation"}
       </button>
-      <dialog
-        ref={dialogRef}
-        className={styles.dialog}
-        aria-labelledby={`cancel-title-${bookingId}`}
-        onClick={(e) => e.target === e.currentTarget && close()}
+      <ConfirmDialog
+        dialogRef={dialogRef}
+        id={`cancel-${bookingId}`}
+        title="Cancel this reservation?"
+        subtitle={dates}
+        dismissLabel="Keep reservation"
+        confirmLabel="Cancel reservation"
+        onConfirm={cancel}
       >
-        <h2 id={`cancel-title-${bookingId}`} className={styles.dialogTitle}>
-          Cancel this reservation?
-        </h2>
-        <p className={styles.dialogDates}>{dates}</p>
         <dl className={styles.terms}>
           <div>
             <dt>Cancellation policy</dt>
@@ -61,15 +59,7 @@ export function CancelTripButton({ bookingId, refund, dates, asHost = false }: C
             <dd>The dates become available to other guests immediately.</dd>
           </div>
         </dl>
-        <div className={styles.dialogActions}>
-          <button type="button" className={styles.keep} onClick={close} autoFocus>
-            Keep reservation
-          </button>
-          <button type="button" className={styles.cancel} onClick={confirm}>
-            Cancel reservation
-          </button>
-        </div>
-      </dialog>
+      </ConfirmDialog>
     </>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition } from "react";
 
 import { confirmBooking } from "@/app/actions";
@@ -10,6 +11,8 @@ import styles from "./page.module.css";
 
 export function ConfirmBookingButton({ listingId, stay }: { listingId: number; stay: StayRequest }) {
   const [error, setError] = useState<string | null>(null);
+  // Someone else booked these dates meanwhile: retrying can't succeed, so offer new dates instead.
+  const [taken, setTaken] = useState(false);
   const [pending, startTransition] = useTransition();
 
   function confirm() {
@@ -19,6 +22,7 @@ export function ConfirmBookingButton({ listingId, stay }: { listingId: number; s
       const result = await confirmBooking(listingId, stay);
       if (result && !result.ok) {
         setError(result.error);
+        setTaken(result.code === "DATES_UNAVAILABLE");
         toast(result.error, "error");
       }
     });
@@ -29,11 +33,18 @@ export function ConfirmBookingButton({ listingId, stay }: { listingId: number; s
       {error && (
         <p className={styles.error} role="alert">
           {error}
+          {taken && <> Someone else just booked them.</>}
         </p>
       )}
-      <button type="button" className={styles.confirm} onClick={confirm} disabled={pending}>
-        {pending ? "Confirming…" : "Confirm booking (demo)"}
-      </button>
+      {taken ? (
+        <Link href={`/listings/${listingId}?guests=${stay.guests}`} className={styles.confirm}>
+          Choose new dates
+        </Link>
+      ) : (
+        <button type="button" className={styles.confirm} onClick={confirm} disabled={pending}>
+          {pending ? "Confirming…" : "Confirm booking (demo)"}
+        </button>
+      )}
     </div>
   );
 }

@@ -219,7 +219,7 @@ export function SearchBar({ query, collapse = "never", placement = "inline" }: S
           <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" className={styles.pillIcon}>
             <path d="M3 11 12 4l9 7v9H3z M9.5 20v-5.5h5V20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
           </svg>
-          {place ? `Homes in ${place}` : "Anywhere"}
+          <span className={styles.pillPlace}>{place ? `Homes in ${place}` : "Anywhere"}</span>
         </button>
         <span className={styles.pillDivider} aria-hidden="true" />
         <button type="button" className={styles.pillPart} onClick={() => expand("dates")}>

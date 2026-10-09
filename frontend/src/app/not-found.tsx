@@ -8,7 +8,7 @@ export default function NotFound() {
   return (
     <>
       <SiteHeader />
-      <main className={styles.main}>
+      <main id="main-content" tabIndex={-1} className={styles.main}>
         <p className={styles.code}>404</p>
         <h1 className={styles.title}>We can&apos;t find that page</h1>
         <p className={styles.text}>

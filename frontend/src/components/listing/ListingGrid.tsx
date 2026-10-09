@@ -36,22 +36,26 @@ export function ListingGrid({
 }: ListingGridProps) {
   const saved = new Set(savedIds);
   return (
-    <ul className={`${styles.grid} ${variant === "split" ? styles.splitGrid : ""}`}>
-      {listings.map((listing, i) => (
-        <li key={listing.id} id={`listing-${listing.id}`}>
-          <ListingCard
-            listing={listing}
-            preloadImage={i < ABOVE_THE_FOLD}
-            initiallySaved={saved.has(listing.id)}
-            linkQuery={linkQuery}
-            nights={nights}
-            variant={variant}
-            highlighted={highlightedId === listing.id}
-            onHoverChange={onHover && ((hovering) => onHover(hovering ? listing.id : null))}
-          />
-        </li>
-      ))}
-    </ul>
+    <>
+      {/* Keeps headings in order (page h1 → this h2 → card h3) for screen readers. */}
+      <h2 className="visually-hidden">Stays</h2>
+      <ul className={`${styles.grid} ${variant === "split" ? styles.splitGrid : ""}`}>
+        {listings.map((listing, i) => (
+          <li key={listing.id} id={`listing-${listing.id}`}>
+            <ListingCard
+              listing={listing}
+              preloadImage={i < ABOVE_THE_FOLD}
+              initiallySaved={saved.has(listing.id)}
+              linkQuery={linkQuery}
+              nights={nights}
+              variant={variant}
+              highlighted={highlightedId === listing.id}
+              onHoverChange={onHover && ((hovering) => onHover(hovering ? listing.id : null))}
+            />
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }
 

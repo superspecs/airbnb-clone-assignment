@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { type ReactNode, Suspense } from "react";
 
+import { ThemeToggle } from "./ThemeToggle";
 import { UserMenu } from "./UserMenu";
 import styles from "./SiteHeader.module.css";
 
@@ -61,6 +62,7 @@ export function SiteHeader({
   );
   const menu = (
     <div className={styles.right}>
+      <ThemeToggle />
       <Suspense fallback={<span className={styles.menuPlaceholder} aria-hidden="true" />}>
         <UserMenu />
       </Suspense>

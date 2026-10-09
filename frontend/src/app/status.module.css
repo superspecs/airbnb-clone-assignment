@@ -43,7 +43,7 @@
 .primary {
   border: 0;
   background: var(--color-dark);
-  color: #fff;
+  color: var(--color-on-dark);
 }
 
 .secondary {

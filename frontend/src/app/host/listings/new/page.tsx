@@ -15,7 +15,7 @@ export default function NewListingPage() {
   return (
     <>
       <SiteHeader />
-      <main className={styles.main}>
+      <main id="main-content" tabIndex={-1} className={styles.main}>
         <div className={styles.pageHeader}>
           <div>
             <h1 className={styles.title}>Create a listing</h1>

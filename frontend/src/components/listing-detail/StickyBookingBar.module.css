@@ -53,7 +53,7 @@
 .reserve {
   padding: 14px 28px;
   border-radius: var(--radius-sm);
-  background: var(--color-accent);
+  background: var(--color-accent-button);
   color: #fff;
   font-size: 16px;
   font-weight: 600;

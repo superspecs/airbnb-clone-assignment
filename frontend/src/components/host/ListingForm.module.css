@@ -125,6 +125,7 @@
   padding: 2px 8px;
   border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.92);
+  color: #222222; /* sits on the photo: light chip in both themes */
   font-size: 11px;
   font-weight: 600;
 }
@@ -133,7 +134,7 @@
   margin-bottom: 24px;
   padding: 14px 18px;
   border-radius: var(--radius-sm);
-  background: #fdecea;
+  background: var(--color-error-bg);
   color: var(--color-error);
 }
 
@@ -153,7 +154,7 @@
   border: 0;
   border-radius: var(--radius-sm);
   background: var(--color-dark);
-  color: #fff;
+  color: var(--color-on-dark);
   font-size: 16px;
   font-weight: 600;
 }

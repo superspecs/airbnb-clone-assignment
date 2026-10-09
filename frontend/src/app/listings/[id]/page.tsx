@@ -22,7 +22,7 @@ export default function ListingPage({ params, searchParams }: PageProps<"/listin
   return (
     <>
       <SiteHeader />
-      <main className={styles.main}>
+      <main id="main-content" tabIndex={-1} className={styles.main}>
         <Suspense fallback={<DetailSkeleton />}>
           <ListingContent params={params} searchParams={searchParams} />
         </Suspense>

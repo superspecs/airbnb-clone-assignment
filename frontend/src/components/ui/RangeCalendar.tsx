@@ -114,7 +114,7 @@ export function RangeCalendar({ today, blocked = NO_BLOCKED, checkIn, checkOut, 
                 <span />
               )}
             </div>
-            <div className={styles.grid} role="grid" aria-label={monthLabel(year, month)}>
+            <div className={styles.grid} role="group" aria-label={monthLabel(year, month)}>
               {WEEKDAYS.map((d) => (
                 <span key={d} className={styles.weekday} aria-hidden="true">
                   {d}

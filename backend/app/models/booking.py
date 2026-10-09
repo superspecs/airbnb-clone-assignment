@@ -1,5 +1,6 @@
 from datetime import date, datetime
 from enum import StrEnum
+from typing import TYPE_CHECKING
 
 from sqlalchemy import DDL, CheckConstraint, Date, DateTime, ForeignKey, Index, Integer, event
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -8,6 +9,9 @@ from app.db import Base
 from app.models.base import str_enum, utcnow
 from app.models.listing import Listing
 from app.models.user import User
+
+if TYPE_CHECKING:
+    from app.models.review import Review
 
 
 class BookingStatus(StrEnum):
@@ -50,6 +54,8 @@ class Booking(Base):
 
     listing: Mapped[Listing] = relationship()
     guest: Mapped[User] = relationship()
+    # The guest's review of this stay, if any (reviews.booking_id is unique).
+    review: Mapped["Review | None"] = relationship(back_populates="booking")
 
 
 # Database-level guarantee that confirmed stays never overlap on the same listing, even if

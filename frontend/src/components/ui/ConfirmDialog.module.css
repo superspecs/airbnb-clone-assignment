@@ -1,0 +1,66 @@
+.dialog {
+  width: min(480px, calc(100vw - 48px));
+  padding: 28px;
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-card);
+  /* Rendered inside table cells (host dashboard actions); don't inherit their alignment. */
+  text-align: left;
+  white-space: normal;
+}
+
+.dialog::backdrop {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.subtitle {
+  margin: 6px 0 0;
+  color: var(--color-text-muted);
+}
+
+.body {
+  margin-top: 20px;
+  padding: 16px 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.dismiss,
+.confirm {
+  padding: 12px 22px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font-weight: 600;
+}
+
+.dismiss {
+  border: 1px solid var(--color-dark);
+}
+
+.dismiss:hover {
+  background: var(--color-surface-muted);
+}
+
+.confirm {
+  border: 1px solid var(--color-error);
+  color: var(--color-error);
+}
+
+.confirm:hover {
+  background: var(--color-error-bg);
+}

@@ -8,7 +8,7 @@ from datetime import date
 
 from sqlalchemy import exists, select
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload, selectinload
 
 from app.bookings import schemas
 from app.bookings.pricing import calculate_price
@@ -17,7 +17,8 @@ from app.core.dates import today
 from app.core.errors import AppError
 from app.db import begin_immediate
 from app.listings.service import get_active_listing
-from app.models import Booking, BookingStatus, Listing, User
+from app.models import Booking, BookingStatus, Listing, Review, User
+from app.reviews.service import review_out
 
 MAX_NIGHTS = 90
 
@@ -111,6 +112,7 @@ def booking_out(booking: Booking) -> schemas.BookingOut:
             is_active=listing.deleted_at is None,
         ),
         guest=schemas.BookingGuest(id=booking.guest.id, name=booking.guest.name),
+        review=review_out(booking.review) if booking.review else None,
     )
 
 
@@ -118,6 +120,7 @@ _BOOKING_LOAD = (
     joinedload(Booking.listing).selectinload(Listing.images),
     joinedload(Booking.listing).joinedload(Listing.host),
     joinedload(Booking.guest),
+    selectinload(Booking.review).joinedload(Review.author),
 )
 
 

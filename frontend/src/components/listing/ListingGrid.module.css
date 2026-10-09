@@ -79,7 +79,7 @@
   min-height: 440px;
   overflow: hidden;
   border-radius: var(--radius-lg);
-  background: #e9e6df;
+  background: var(--color-map-bg);
   cursor: grab;
   touch-action: none;
   user-select: none;
@@ -95,6 +95,11 @@
   width: 257px;
   height: 257px;
   pointer-events: none;
+}
+
+/* OpenStreetMap tiles are light-only; tone them down so the map doesn't glare in dark mode. */
+:global(:root[data-theme="dark"]) .tile {
+  filter: brightness(0.82) contrast(1.05);
 }
 
 .marker {
@@ -123,7 +128,7 @@
 .markerSelected {
   z-index: 3;
   background: var(--color-dark);
-  color: #fff;
+  color: var(--color-on-dark);
   transform: translate(-50%, -50%) scale(1.077);
 }
 
@@ -181,6 +186,7 @@
   z-index: 4;
   padding: 2px 8px;
   background: rgba(255, 255, 255, 0.85);
+  color: #222222; /* on the map tiles: light chip in both themes */
   font-size: 11px;
 }
 
@@ -251,6 +257,7 @@
   border: 0;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.94);
+  color: #222222; /* on the listing photo: light chip in both themes */
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
@@ -288,7 +295,7 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: #f2f2f2;
+  background: var(--color-chip);
   transition: background-color 0.15s, transform 0.15s;
 }
 
@@ -299,7 +306,7 @@
 
 .sectionSubtitle {
   margin: 4px 0 0;
-  color: #6a6a6a;
+  color: var(--color-text-muted);
   font-size: 14px;
   line-height: 18px;
 }
@@ -318,7 +325,7 @@
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: #f2f2f2;
+  background: var(--color-chip);
   color: var(--color-text);
   transition: background-color 0.15s;
 }
@@ -328,8 +335,8 @@
 }
 
 .sectionNav button:disabled {
-  color: #c1c1c1;
-  background: #f7f7f7;
+  color: var(--color-text-disabled);
+  background: var(--color-surface-muted);
   cursor: default;
 }
 
@@ -375,7 +382,7 @@
 
 .skeleton {
   border-radius: var(--radius-sm);
-  background: linear-gradient(90deg, #eeeeee 25%, #f6f6f6 50%, #eeeeee 75%);
+  background: linear-gradient(90deg, var(--color-skeleton) 25%, var(--color-skeleton-shine) 50%, var(--color-skeleton) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
 }

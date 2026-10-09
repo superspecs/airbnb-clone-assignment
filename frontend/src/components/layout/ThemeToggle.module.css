@@ -1,0 +1,35 @@
+/* Same 40px grey circle as the profile and menu buttons beside it. */
+.toggle {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-chip);
+  color: var(--color-text);
+  transition: background-color 0.15s;
+}
+
+.toggle:hover {
+  background: var(--color-surface-hover);
+}
+
+.toggle:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 2px;
+}
+
+/* Light theme offers the moon (go dark); dark theme offers the sun (go light). */
+.sun {
+  display: none;
+}
+
+:global(:root[data-theme="dark"]) .sun {
+  display: block;
+}
+
+:global(:root[data-theme="dark"]) .moon {
+  display: none;
+}

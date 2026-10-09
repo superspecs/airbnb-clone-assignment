@@ -1,4 +1,6 @@
 :root {
+  color-scheme: light;
+
   /* Colour */
   --color-text: #222222;
   --color-text-muted: #6a6a6a;
@@ -9,8 +11,28 @@
   --color-surface-hover: #ebebeb;
   --color-accent: #e8503a;
   --color-accent-strong: #c93a25;
+  /* Filled buttons with text: deeper coral so white labels meet WCAG AA (4.6:1). */
+  --color-accent-button: #d4402a;
   --color-dark: #222222;
+  /* Text on --color-dark fills (dark buttons, selected days, toasts). */
+  --color-on-dark: #ffffff;
+  --color-dark-hover: #000000;
   --color-error: #c13515;
+  --color-error-bg: #fdecea;
+  /* Error fill behind white text (error toast); stays deep red in both themes. */
+  --color-error-fill: #c13515;
+  --color-success-bg: #e7f4ec;
+  --color-success-text: #1d6b3a;
+  --color-info-bg: #e8f0fe;
+  --color-info-text: #1a4fa0;
+  --color-toast-info: #3d3d3d;
+  /* Round grey icon buttons (menu, carousel arrows). */
+  --color-chip: #f2f2f2;
+  --color-text-disabled: #c1c1c1;
+  --color-skeleton: #eeeeee;
+  --color-skeleton-shine: #f6f6f6;
+  --color-header-band: #f8f8f8;
+  --color-map-bg: #e9e6df;
 
   /* Shape & depth */
   --radius-sm: 8px;
@@ -20,6 +42,8 @@
   --radius-pill: 999px;
   --shadow-card: 0 6px 16px rgba(0, 0, 0, 0.12);
   --shadow-float: 0 3px 12px rgba(0, 0, 0, 0.15);
+  --shadow-panel: 0 6px 24px rgba(0, 0, 0, 0.18);
+  --shadow-popover: 0 6px 24px rgba(0, 0, 0, 0.22);
 
   /* Layout */
   --page-gutter: 24px;
@@ -34,6 +58,42 @@
   --gallery-row: clamp(170px, 18vw, 238px);
 
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Dark theme: set on <html> by the inline theme script (app/layout.tsx) and ThemeToggle.
+   Raised surfaces get a hairline ring in their shadow, since dark shadows barely show. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-text: #f2f2f2;
+  --color-text-muted: #b0b0b5;
+  --color-border: #3a3a3c;
+  --color-border-strong: #6e6e73;
+  --color-surface: #18181a;
+  --color-surface-muted: #232326;
+  --color-surface-hover: #2e2e32;
+  --color-accent-strong: #f0644f;
+  --color-dark: #f2f2f2;
+  --color-on-dark: #18181a;
+  --color-dark-hover: #ffffff;
+  --color-error: #ff8a73;
+  --color-error-bg: #3b1d19;
+  --color-success-bg: #16351f;
+  --color-success-text: #8fd6a6;
+  --color-info-bg: #1b2c4a;
+  --color-info-text: #a8c7ff;
+  --color-toast-info: #3a3a3c;
+  --color-chip: #2c2c2e;
+  --color-text-disabled: #5c5c60;
+  --color-skeleton: #26262a;
+  --color-skeleton-shine: #323236;
+  --color-header-band: #18181a;
+  --color-map-bg: #2a2a2c;
+
+  --shadow-card: 0 0 0 1px #3a3a3c, 0 8px 24px rgba(0, 0, 0, 0.6);
+  --shadow-float: 0 0 0 1px #3a3a3c, 0 3px 12px rgba(0, 0, 0, 0.5);
+  --shadow-panel: 0 0 0 1px #3a3a3c, 0 8px 28px rgba(0, 0, 0, 0.6);
+  --shadow-popover: 0 0 0 1px #3a3a3c, 0 8px 28px rgba(0, 0, 0, 0.65);
 }
 
 @media (min-width: 744px) {
@@ -86,6 +146,10 @@ select {
   color: inherit;
 }
 
+textarea {
+  color: inherit;
+}
+
 button {
   cursor: pointer;
 }
@@ -102,4 +166,26 @@ button {
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
+}
+
+/* Visible only when focused with the keyboard. */
+.skip-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--color-dark);
+  color: var(--color-on-dark);
+  font-weight: 600;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+main:focus {
+  outline: none;
 }

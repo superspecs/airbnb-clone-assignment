@@ -42,6 +42,9 @@
 }
 
 .right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   justify-self: end;
 }
 
@@ -91,8 +94,8 @@
   position: fixed;
   left: 0;
   right: 0;
-  border-bottom-color: #ebebeb;
-  background: linear-gradient(180deg, #ffffff 40%, #f8f8f8 100%);
+  border-bottom-color: var(--color-surface-hover);
+  background: linear-gradient(180deg, var(--color-surface) 40%, var(--color-header-band) 100%);
   transition: background-color 0.25s;
 }
 

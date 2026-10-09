@@ -38,7 +38,7 @@ export default function HostDashboardPage({ searchParams }: PageProps<"/host">) 
   return (
     <>
       <SiteHeader />
-      <main className={`${styles.main} ${styles.wide}`}>
+      <main id="main-content" tabIndex={-1} className={`${styles.main} ${styles.wide}`}>
         <Suspense fallback={<p className={styles.muted}>Loading your hosting dashboard…</p>}>
           <Dashboard searchParams={searchParams} />
         </Suspense>
@@ -147,7 +147,7 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/host">, "searchParam
                     <Link href={`/host/listings/${listing.id}/edit`} className={hostStyles.edit}>
                       Edit
                     </Link>
-                    <DeleteListingButton listingId={listing.id} title={listing.title} />
+                    <DeleteListingButton listingId={listing.id} title={listing.title} upcomingBookings={listing.upcoming_bookings} />
                   </td>
                 </tr>
               ))}

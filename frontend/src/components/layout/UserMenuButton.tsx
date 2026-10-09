@@ -51,11 +51,12 @@ export function UserMenuButton({ current, users }: { current: DemoUser | null; u
         className={styles.circle}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label={current ? `Profile, signed in as ${current.name}` : "Profile"}
         onClick={() => setOpen((o) => !o)}
         disabled={pending}
       >
         <Avatar name={current?.name ?? "?"} size={32} />
+        {/* Name as text (not aria-label) so it doesn't conflict with the visible initials. */}
+        <span className="visually-hidden">{current ? `Profile, signed in as ${current.name}` : "Profile"}</span>
       </button>
       <button
         type="button"

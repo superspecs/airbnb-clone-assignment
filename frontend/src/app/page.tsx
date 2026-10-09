@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { Suspense } from "react";
 
 import { ExploreResults } from "@/components/explore/ExploreResults";
@@ -20,7 +21,10 @@ export default function ExplorePage({ searchParams }: PageProps<"/">) {
 }
 
 async function Explore({ searchParams }: Pick<PageProps<"/">, "searchParams">) {
-  const query = parseExploreQuery(await searchParams);
+  const raw = await searchParams;
+  // Parsing compares dates with "today", so this render must happen at request time.
+  await connection();
+  const query = parseExploreQuery(raw);
   const key = toUrlParams(query).toString();
   const searching = isSearchMode(query);
   const section = searching ? "homes" : activeSection(query);
@@ -40,7 +44,7 @@ async function Explore({ searchParams }: Pick<PageProps<"/">, "searchParams">) {
           <SearchBar key={key} query={query} collapse="scroll" placement="below" />
         </SiteHeader>
       )}
-      <main className={`${styles.main} ${searching ? "" : section === "homes" ? styles.homesMain : styles.homeMain}`}>
+      <main id="main-content" tabIndex={-1} className={`${styles.main} ${searching ? "" : section === "homes" ? styles.homesMain : styles.homeMain}`}>
         {section === "experiences" || section === "services" ? (
           <SectionUnavailable
             label={section === "experiences" ? "Experiences" : "Services"}
@@ -64,7 +68,7 @@ function ExploreShell() {
   return (
     <>
       <SiteHeader variant="home" />
-      <main className={styles.main}>
+      <main id="main-content" tabIndex={-1} className={styles.main}>
         <ListingGridSkeleton />
       </main>
     </>

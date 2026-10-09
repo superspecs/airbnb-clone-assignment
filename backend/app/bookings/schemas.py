@@ -2,6 +2,7 @@ from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.listings.schemas import ReviewOut
 from app.models import BookingStatus
 
 
@@ -68,3 +69,4 @@ class BookingOut(BaseModel):
     price: PriceOut
     listing: BookingListing
     guest: BookingGuest
+    review: ReviewOut | None = Field(None, description="The guest's review of this stay, once written")

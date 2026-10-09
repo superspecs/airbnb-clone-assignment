@@ -108,7 +108,7 @@
 .selected:hover:not(:disabled) span {
   border-color: var(--color-dark);
   background: var(--color-dark);
-  color: #fff;
+  color: var(--color-on-dark);
 }
 
 .footer {

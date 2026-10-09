@@ -17,7 +17,7 @@ export default function TripsPage() {
   return (
     <>
       <SiteHeader />
-      <main className={styles.main}>
+      <main id="main-content" tabIndex={-1} className={styles.main}>
         <div className={styles.pageHeader}>
           <div>
             <h1 className={styles.title}>Trips</h1>
@@ -59,13 +59,23 @@ async function TripsList() {
   return (
     <>
       <TripSection title="Upcoming" trips={upcoming} emptyText="No upcoming trips." />
-      <TripSection title="Past" trips={past} emptyText="No past trips yet." />
+      <TripSection title="Past" trips={past} emptyText="No past trips yet." past />
       {cancelled.length > 0 && <TripSection title="Cancelled" trips={cancelled} emptyText="" />}
     </>
   );
 }
 
-function TripSection({ title, trips, emptyText }: { title: string; trips: Booking[]; emptyText: string }) {
+function TripSection({
+  title,
+  trips,
+  emptyText,
+  past = false,
+}: {
+  title: string;
+  trips: Booking[];
+  emptyText: string;
+  past?: boolean;
+}) {
   return (
     <section className={styles.section}>
       <h2 className={styles.sectionTitle}>{title}</h2>
@@ -74,7 +84,7 @@ function TripSection({ title, trips, emptyText }: { title: string; trips: Bookin
       ) : (
         <div className={styles.twoCol}>
           {trips.map((trip) => (
-            <TripCard key={trip.id} booking={trip} />
+            <TripCard key={trip.id} booking={trip} past={past} />
           ))}
         </div>
       )}

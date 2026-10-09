@@ -97,8 +97,8 @@
 }
 
 .upcoming {
-  background: #e7f4ec;
-  color: #1d6b3a;
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
 }
 
 .completed {
@@ -147,8 +147,8 @@
 }
 
 .current {
-  background: #e8f0fe;
-  color: #1a4fa0;
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
 }
 
 /* Reservation status tabs on the host dashboard. */
@@ -183,4 +183,9 @@
   bottom: -1px;
   height: 2px;
   background: var(--color-dark);
+}
+
+.dialogText {
+  margin: 0;
+  color: var(--color-text-muted);
 }

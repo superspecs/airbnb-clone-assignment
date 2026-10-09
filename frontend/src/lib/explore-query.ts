@@ -1,4 +1,5 @@
 import { AMENITY_FILTERS, CATEGORIES, MAX_GUESTS, PAGE_SIZE, PROPERTY_TYPES, ROOM_TYPES } from "@/lib/constants";
+import { marketplaceToday } from "@/lib/stay";
 import type { Category, PropertyType, RoomType } from "@/lib/types/listing";
 
 /**
@@ -27,6 +28,9 @@ export interface ExploreQuery {
 
 type RawParams = Record<string, string | string[] | undefined>;
 
+/** The API's limit for the location search text. */
+const MAX_LOCATION_LENGTH = 100;
+
 const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
 const all = (value: string | string[] | undefined) =>
   value === undefined ? [] : Array.isArray(value) ? value : [value];
@@ -43,17 +47,30 @@ function oneOf<T extends string>(value: string | undefined, allowed: readonly { 
 
 const isoDate = (value: string | undefined) => (value && /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : undefined);
 
-/** Parse untrusted URL params; unknown or malformed values are dropped. */
+/**
+ * Parse untrusted URL params; unknown or malformed values are dropped. Values the API would
+ * reject (a stale link with past dates, half a date range, reversed dates or prices, an
+ * over-long place) are dropped or corrected here, so an old link still shows results.
+ */
 export function parseExploreQuery(raw: RawParams): ExploreQuery {
   const guests = nonNegativeInt(first(raw.guests));
   const knownAmenities = new Set(AMENITY_FILTERS.map((a) => a.code));
+  let checkIn = isoDate(first(raw.check_in));
+  let checkOut = isoDate(first(raw.check_out));
+  if (!checkIn || !checkOut || checkIn < marketplaceToday() || checkOut <= checkIn) {
+    checkIn = undefined;
+    checkOut = undefined;
+  }
+  let minPrice = nonNegativeInt(first(raw.min_price));
+  let maxPrice = nonNegativeInt(first(raw.max_price));
+  if (minPrice !== undefined && maxPrice !== undefined && minPrice > maxPrice) [minPrice, maxPrice] = [maxPrice, minPrice];
   return {
-    location: first(raw.location)?.trim() || undefined,
-    checkIn: isoDate(first(raw.check_in)),
-    checkOut: isoDate(first(raw.check_out)),
+    location: first(raw.location)?.trim().slice(0, MAX_LOCATION_LENGTH) || undefined,
+    checkIn,
+    checkOut,
     guests: guests && guests >= 1 ? Math.min(guests, MAX_GUESTS) : undefined,
-    minPrice: nonNegativeInt(first(raw.min_price)),
-    maxPrice: nonNegativeInt(first(raw.max_price)),
+    minPrice,
+    maxPrice,
     propertyTypes: [
       ...new Set(all(raw.property_type).flatMap((v) => oneOf(v, PROPERTY_TYPES) ?? [])),
     ],
