@@ -30,8 +30,8 @@ light or dark theme.
 6. **Review a stay** — as the default guest (Priya Nair) open **Trips** → a past stay marked
    **Leave a review** → pick 1–5 stars and write a comment → **Publish review**. The review
    appears on the listing and counts toward its rating; the host sees it on the reservation.
-7. **Dark mode** — the moon/sun button in the header switches theme. The choice is remembered
-   (and follows the system setting until you pick one), with no flash of the wrong theme on load.
+7. **Dark mode** — the site opens in light mode; the moon/sun button in the header switches to
+   dark. The choice is remembered, with no flash of the wrong theme on load.
 
 ---
 

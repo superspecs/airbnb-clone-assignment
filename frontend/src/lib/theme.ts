@@ -6,10 +6,11 @@ export type Theme = "light" | "dark";
 export const THEME_STORAGE_KEY = "stays-theme";
 
 /**
- * Inline, render-blocking: the saved choice, else the OS preference. Kept tiny and static
- * (no user data is interpolated), and any storage error falls back to light.
+ * Inline, render-blocking: the visitor's saved choice, else light (the site default; dark is
+ * opt-in from the header toggle). Kept tiny and static (no user data is interpolated), and any
+ * storage error falls back to light.
  */
-export const THEME_SCRIPT = `(function(){try{var t=localStorage.getItem("${THEME_STORAGE_KEY}");if(t!=="light"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}document.documentElement.dataset.theme=t}catch(e){document.documentElement.dataset.theme="light"}})()`;
+export const THEME_SCRIPT = `(function(){var t="light";try{if(localStorage.getItem("${THEME_STORAGE_KEY}")==="dark")t="dark"}catch(e){}document.documentElement.dataset.theme=t})()`;
 
 const listeners = new Set<() => void>();
 
