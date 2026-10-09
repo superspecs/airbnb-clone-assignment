@@ -14,7 +14,7 @@ checkout, manage trips and wishlists, and run listings as a host.
 
 ---
 
-## Quick tour for evaluators (2 minutes)
+## Quick tour
 
 1. **Home** — category tabs, search bar (folds into a compact pill on scroll), photo-card carousels.
 2. **Search** — Where `Goa`, any dates, 2 guests → list + interactive map with price pins
@@ -31,26 +31,25 @@ checkout, manage trips and wishlists, and run listings as a host.
 
 ## Requirements coverage
 
-| Assignment requirement | Status | Where to look |
-|---|---|---|
-| Listing grid (photo, title, location, price, rating) | ✅ | `components/listing/ListingCard.tsx` |
-| Search: location + date range + guests | ✅ | `components/search/SearchBar.tsx` |
-| Category / filter row (price, type, amenities) | ✅ | `CategoryBar.tsx`, `FiltersModal.tsx` |
-| Pagination | ✅ | `components/explore/Pagination.tsx` |
-| Detail: gallery, description, location, amenities, host, reviews | ✅ | `components/listing-detail/` |
-| Availability calendar + price breakdown (nightly × nights + fees) | ✅ | `AvailabilityCalendar.tsx`, `bookings/pricing.py` |
-| Booking with validation, no overlapping dates | ✅ | `bookings/service.py` + SQLite triggers |
-| Mocked checkout, confirmation, **My Trips** | ✅ | `app/listings/[id]/book`, `app/trips` |
-| Bookings persist and block dates | ✅ | `bookings` table, `/listings/{id}/availability` |
-| Host CRUD + dashboard with bookings | ✅ | `app/host`, `backend/app/host` |
-| Host reservation detail: payout, guest total, cancel | ✅ | `app/trips/[bookingId]` (host view) |
-| Toasts, modals, date pickers, wishlist | ✅ | `ui/Toast.tsx`, `FiltersModal.tsx`, `RangeCalendar.tsx` |
-| Guest vs host (mocked auth) | ✅ | header menu → *Switch demo user* |
-| Seeded data (listings, hosts, bookings, reviews) | ✅ | `backend/app/seed` |
-| Mocked: payments, messaging, ID verification | ✅ "Coming soon" / demo labels | |
-| **Bonus:** interactive map with pins | ✅ | `ListingGrid.tsx` (OpenStreetMap tiles) |
-| **Bonus:** Superhost badges, rating aggregation | ✅ | listing cards, reviews summary |
-| **Bonus:** reviews after a stay, cloud upload, dark mode, mobile | ❌ not built | |
+| Assignment requirement | Where to look |
+|---|---|
+| Listing grid (photo, title, location, price, rating) | `components/listing/ListingCard.tsx` |
+| Search: location + date range + guests | `components/search/SearchBar.tsx` |
+| Category / filter row (price, type, amenities) | `CategoryBar.tsx`, `FiltersModal.tsx` |
+| Pagination | `components/explore/Pagination.tsx` |
+| Detail: gallery, description, location, amenities, host, reviews | `components/listing-detail/` |
+| Availability calendar + price breakdown (nightly × nights + fees) | `AvailabilityCalendar.tsx`, `bookings/pricing.py` |
+| Booking with validation, no overlapping dates | `bookings/service.py` + SQLite triggers |
+| Mocked checkout, confirmation, **My Trips** | `app/listings/[id]/book`, `app/trips` |
+| Bookings persist and block dates | `bookings` table, `/listings/{id}/availability` |
+| Host CRUD + dashboard with bookings | `app/host`, `backend/app/host` |
+| Host reservation detail: payout, guest total, cancel | `app/trips/[bookingId]` (host view) |
+| Toasts, modals, date pickers, wishlist | `ui/Toast.tsx`, `FiltersModal.tsx`, `RangeCalendar.tsx` |
+| Guest vs host (mocked auth) | header menu → *Switch demo user* |
+| Seeded data (listings, hosts, bookings, reviews) | `backend/app/seed` |
+| Mocked: payments, messaging, ID verification | "Coming soon" / demo labels |
+| **Bonus:** interactive map with pins | `ListingGrid.tsx` (OpenStreetMap tiles) |
+| **Bonus:** Superhost badges, rating aggregation | listing cards, reviews summary |
 
 ---
 
